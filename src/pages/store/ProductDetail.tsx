@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ShoppingCart, Tag, AlertTriangle, Minus, Plus, Truck } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, Tag, AlertTriangle, Minus, Plus, Truck, ShieldCheck, RotateCcw, Headphones } from 'lucide-react'
 import { CartDrawer } from '@/components/store/CartDrawer'
 import { toast } from 'sonner'
 import { Product } from '@/types/product'
@@ -200,6 +200,68 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
+
+        {/* 商品介紹 */}
+        <section className="mx-auto max-w-4xl mt-12 space-y-12">
+          {/* 亮點 */}
+          <div>
+            <h2 className="mb-6 text-xl font-semibold">商品特色</h2>
+            <div className="grid gap-6 sm:grid-cols-3">
+              {[
+                { img: product.images[0], title: '精選原料', desc: '嚴格把關每一項原料來源，確保品質穩定，給您最放心的選擇。' },
+                { img: product.images[0], title: '專業製程', desc: '經過多道品管流程，從原料到成品全程監控，保留最佳狀態。' },
+                { img: product.images[0], title: '品質保證', desc: '通過多項品質認證，每一件商品出貨前均經過嚴格檢驗。' },
+              ].map(({ img, title, desc }) => (
+                <div key={title} className="overflow-hidden rounded-lg border bg-card">
+                  <div className="aspect-video overflow-hidden bg-muted">
+                    <img src={img} alt={title} className="h-full w-full object-cover" />
+                  </div>
+                  <div className="p-4">
+                    <h3 className="mb-1 font-semibold">{title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 規格 */}
+          <div>
+            <h2 className="mb-4 text-xl font-semibold">商品規格</h2>
+            <div className="rounded-lg border overflow-hidden">
+              {[
+                { label: '商品名稱', value: product.name },
+                { label: '商品分類', value: product.category.name },
+                { label: '售價', value: `NT$${product.price.toLocaleString()}` },
+                { label: '庫存狀態', value: product.stock > 0 ? `現貨 ${product.stock} 件` : '缺貨中' },
+                { label: '累計銷售', value: `${product.sales.toLocaleString()} 件` },
+              ].map(({ label, value }, i) => (
+                <div key={label} className={`flex text-sm ${i % 2 === 0 ? 'bg-muted/40' : ''}`}>
+                  <span className="w-32 shrink-0 px-4 py-3 font-medium text-muted-foreground border-r">{label}</span>
+                  <span className="px-4 py-3">{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 服務保障 */}
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 rounded-xl border p-6">
+            {[
+              { icon: <Truck className="h-5 w-5" />, title: '免費配送', desc: '滿額享免運優惠' },
+              { icon: <RotateCcw className="h-5 w-5" />, title: '7 天退換', desc: '不滿意全額退款' },
+              { icon: <ShieldCheck className="h-5 w-5" />, title: '正品保證', desc: '100% 原廠商品' },
+              { icon: <Headphones className="h-5 w-5" />, title: '客服支援', desc: '週一至週六 9–18 時' },
+            ].map(({ icon, title, desc }) => (
+              <div key={title} className="flex flex-col items-center gap-2 text-center">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  {icon}
+                </div>
+                <p className="text-sm font-medium">{title}</p>
+                <p className="text-xs text-muted-foreground">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* 相關商品 */}
         {related.length > 0 && (
