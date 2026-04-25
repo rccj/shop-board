@@ -140,33 +140,36 @@ export default function ProductDetail() {
               <span className="text-muted-foreground">銷售 {product.sales.toLocaleString()} 件</span>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex items-center rounded-md border">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10 rounded-r-none"
-                  disabled={isOutOfStock || qty <= 1}
-                  onClick={() => setQty(q => Math.max(1, q - 1))}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <span className="w-10 text-center text-sm font-medium tabular-nums">{qty}</span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10 rounded-l-none"
-                  disabled={isOutOfStock || qty >= product.stock}
-                  onClick={() => setQty(q => Math.min(product.stock, q + 1))}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">數量</span>
+                <div className="flex items-center rounded-md border">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-r-none"
+                    disabled={isOutOfStock || qty <= 1}
+                    onClick={() => setQty(q => Math.max(1, q - 1))}
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </Button>
+                  <span className="w-10 text-center text-sm font-medium tabular-nums">{qty}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-l-none"
+                    disabled={isOutOfStock || qty >= product.stock}
+                    onClick={() => setQty(q => Math.min(product.stock, q + 1))}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
               </div>
               <Button
                 size="lg"
-                className="flex-1"
+                className="w-full"
                 disabled={isOutOfStock}
                 onClick={handleAddToCart}
               >
