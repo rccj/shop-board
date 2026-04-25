@@ -22,7 +22,7 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/shop-board">
       <Toaster richColors position="top-right" />
       <Routes>
         <Route path="/" element={<ProductList />} />
