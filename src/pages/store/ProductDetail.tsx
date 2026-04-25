@@ -47,20 +47,33 @@ export default function ProductDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <header className="border-b bg-background sticky top-0 z-10">
+        <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
           <div className="container mx-auto flex items-center justify-between px-4 py-3">
-            <Link to="/"><Button variant="ghost" size="sm"><ArrowLeft className="mr-2 h-4 w-4" />返回</Button></Link>
+            <Link to="/"><Button variant="ghost" size="sm"><ArrowLeft className="mr-2 h-4 w-4" />所有商品</Button></Link>
             <CartDrawer />
           </div>
         </header>
         <main className="container mx-auto px-4 py-8">
-          <div className="grid gap-8 md:grid-cols-2">
-            <Skeleton className="aspect-square w-full rounded-lg" />
-            <div className="space-y-4">
-              <Skeleton className="h-8 w-3/4" />
-              <Skeleton className="h-6 w-1/4" />
-              <Skeleton className="h-20 w-full" />
-              <Skeleton className="h-10 w-full" />
+          <div className="mx-auto max-w-4xl grid gap-8 md:grid-cols-2">
+            <Skeleton className="aspect-square w-full rounded-xl" />
+            <div className="flex flex-col gap-5">
+              <div className="space-y-2">
+                <Skeleton className="h-5 w-20 rounded-full" />
+                <Skeleton className="h-8 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+              <Skeleton className="h-px w-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-9 w-32" />
+              </div>
+              <Skeleton className="h-12 w-full rounded-lg" />
+              <Skeleton className="h-px w-full" />
+              <div className="space-y-3">
+                <Skeleton className="h-9 w-full" />
+                <Skeleton className="h-11 w-full rounded-lg" />
+              </div>
             </div>
           </div>
         </main>
@@ -194,8 +207,7 @@ export default function ProductDetail() {
                   <Truck className="h-3.5 w-3.5" />
                   免費配送
                 </span>
-                <span>·</span>
-                <span>7 天退換貨保障</span>
+                <span>· 7 天退換貨保障</span>
               </div>
             </div>
           </div>
