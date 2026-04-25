@@ -48,7 +48,7 @@ export default function ProductList() {
   }
 
   useEffect(() => {
-    getProducts({ page: 1, pageSize: 10, sortBy: 'sales', sortOrder: 'desc' })
+    getProducts({ page: 1, pageSize: 10, sortBy: 'sales', sortOrder: 'desc', status: 'active' })
       .then(res => setHotProducts(res.data.slice(0, 6)))
       .catch(() => {})
       .finally(() => setHotLoading(false))
@@ -69,6 +69,7 @@ export default function ProductList() {
           pageSize: 50,
           search: debouncedSearch || undefined,
           categoryId: selectedCategory,
+          status: 'active',
           ...sortMap[sort],
         })
         setProducts(res.data)

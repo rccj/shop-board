@@ -27,7 +27,7 @@ export default function ProductDetail() {
     getProduct(Number(id))
       .then(res => {
         setProduct(res.data)
-        return getProducts({ page: 1, pageSize: 10, categoryId: res.data.category.id })
+        return getProducts({ page: 1, pageSize: 10, categoryId: res.data.category.id, status: 'active' })
       })
       .then(res => {
         setRelated(res.data.filter(p => p.id !== Number(id)).slice(0, 4))
