@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ShoppingCart, Tag, AlertTriangle, Minus, Plus } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, Tag, AlertTriangle, Minus, Plus, Truck } from 'lucide-react'
 import { CartDrawer } from '@/components/store/CartDrawer'
 import { toast } from 'sonner'
 import { Product } from '@/types/product'
@@ -9,6 +9,7 @@ import { useCartStore } from '@/store/cartStore'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Separator } from '@/components/ui/separator'
 import { ProductCard } from '@/components/store/ProductCard'
 import { Footer } from '@/components/store/Footer'
 import { CATEGORY_DISCOUNT_HINTS } from '@/lib/discountHints'
@@ -94,26 +95,33 @@ export default function ProductDetail() {
           </div>
 
           {/* 資訊 */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
+            {/* 標題 */}
             <div>
               <Badge variant="secondary" className="mb-2">{product.category.name}</Badge>
-              <h1 className="text-2xl font-bold">{product.name}</h1>
-              <p className="mt-2 text-muted-foreground">{product.description}</p>
+              <h1 className="text-2xl font-bold leading-snug">{product.name}</h1>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{product.description}</p>
             </div>
 
-            {/* 價格 */}
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-bold">NT${product.price.toLocaleString()}</span>
+            <Separator />
+
+            {/* 價格（垂直堆疊） */}
+            <div className="space-y-1">
               {product.compareAtPrice && (
-                <span className="text-lg text-muted-foreground line-through">
+                <p className="text-sm text-muted-foreground line-through">
                   NT${product.compareAtPrice.toLocaleString()}
+                </p>
+              )}
+              <div className="flex items-center gap-2">
+                <span className="text-3xl font-bold">
+                  NT${product.price.toLocaleString()}
                 </span>
-              )}
-              {product.compareAtPrice && (
-                <Badge variant="destructive">
-                  -{Math.round((1 - product.price / product.compareAtPrice) * 100)}%
-                </Badge>
-              )}
+                {product.compareAtPrice && (
+                  <Badge variant="destructive">
+                    -{Math.round((1 - product.price / product.compareAtPrice) * 100)}%
+                  </Badge>
+                )}
+              </div>
             </div>
 
             {/* 折扣提示 */}
@@ -125,7 +133,7 @@ export default function ProductDetail() {
             )}
 
             {/* 庫存狀態 */}
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               {isOutOfStock ? (
                 <Badge variant="destructive">缺貨中</Badge>
               ) : isLowStock ? (
@@ -134,15 +142,18 @@ export default function ProductDetail() {
                   庫存僅剩 {product.stock} 件
                 </span>
               ) : (
-                <span className="text-muted-foreground">庫存 {product.stock} 件</span>
+                <span>庫存 {product.stock} 件</span>
               )}
-              <span className="text-muted-foreground">·</span>
-              <span className="text-muted-foreground">銷售 {product.sales.toLocaleString()} 件</span>
+              <span>·</span>
+              <span>已售 {product.sales.toLocaleString()} 件</span>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-muted-foreground">數量</span>
+            <Separator />
+
+            {/* 數量 + 加購 */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">數量</span>
                 <div className="flex items-center rounded-md border">
                   <Button
                     type="button"
@@ -154,7 +165,7 @@ export default function ProductDetail() {
                   >
                     <Minus className="h-3.5 w-3.5" />
                   </Button>
-                  <span className="w-10 text-center text-sm font-medium tabular-nums">{qty}</span>
+                  <span className="w-12 text-center text-sm font-medium tabular-nums">{qty}</span>
                   <Button
                     type="button"
                     variant="ghost"
@@ -167,6 +178,7 @@ export default function ProductDetail() {
                   </Button>
                 </div>
               </div>
+
               <Button
                 size="lg"
                 className="w-full"
@@ -176,6 +188,15 @@ export default function ProductDetail() {
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 {isOutOfStock ? '目前缺貨' : '加入購物車'}
               </Button>
+
+              <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Truck className="h-3.5 w-3.5" />
+                  免費配送
+                </span>
+                <span>·</span>
+                <span>7 天退換貨保障</span>
+              </div>
             </div>
           </div>
         </div>
