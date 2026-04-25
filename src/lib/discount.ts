@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js'
 import {
   Product,
   CartItem,
@@ -78,8 +79,14 @@ class CartCalculator {
       }
 
       const originalSubtotal = product.price * item.quantity
-      const finalSubtotal = Math.round(originalSubtotal * discountRate)
-      const finalPrice = Math.round(product.price * discountRate)
+      const finalSubtotal = new Decimal(originalSubtotal)
+        .mul(discountRate)
+        .toDecimalPlaces(0, Decimal.ROUND_HALF_UP)
+        .toNumber()
+      const finalPrice = new Decimal(product.price)
+        .mul(discountRate)
+        .toDecimalPlaces(0, Decimal.ROUND_HALF_UP)
+        .toNumber()
 
       return {
         productId: product.id,
