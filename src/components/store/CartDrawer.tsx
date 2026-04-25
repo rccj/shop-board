@@ -168,7 +168,11 @@ export function CartDrawer() {
                 </div>
               )}
 
-              <Button className="w-full" size="lg">前往結帳</Button>
+              <DrawerClose asChild>
+                <Link to="/checkout">
+                  <Button className="w-full" size="lg">前往結帳</Button>
+                </Link>
+              </DrawerClose>
               <p className="text-center text-xs text-muted-foreground">{FULL_AMOUNT_HINT}</p>
             </div>
           </div>

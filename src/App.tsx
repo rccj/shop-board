@@ -3,8 +3,10 @@ import { Toaster } from 'sonner'
 import ProductList from '@/pages/store/ProductList'
 import ProductDetail from '@/pages/store/ProductDetail'
 import Cart from '@/pages/store/Cart'
+import Checkout from '@/pages/store/Checkout'
 import AdminProducts from '@/pages/admin/Products'
 import { Button } from '@/components/ui/button'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -25,9 +27,10 @@ export default function App() {
     <HashRouter>
       <Toaster richColors position="top-right" />
       <Routes>
-        <Route path="/" element={<ProductList />} />
-        <Route path="/products/:id" element={<ProductDetail />} />
-        <Route path="/cart" element={<Cart />} />
+        <Route path="/" element={<ErrorBoundary><ProductList /></ErrorBoundary>} />
+        <Route path="/products/:id" element={<ErrorBoundary><ProductDetail /></ErrorBoundary>} />
+        <Route path="/cart" element={<ErrorBoundary><Cart /></ErrorBoundary>} />
+        <Route path="/checkout" element={<ErrorBoundary><Checkout /></ErrorBoundary>} />
         <Route path="/admin" element={<Navigate to="/admin/products" replace />} />
         <Route
           path="/admin/products"
