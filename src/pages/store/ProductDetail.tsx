@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, ShoppingCart, Tag, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, ShoppingCart, Tag, AlertTriangle, Minus, Plus } from 'lucide-react'
 import { CartDrawer } from '@/components/store/CartDrawer'
 import { toast } from 'sonner'
 import { Product } from '@/types/product'
@@ -20,6 +20,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<Product | null>(null)
   const [related, setRelated] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [qty, setQty] = useState(1)
 
   useEffect(() => {
     if (!id) return
@@ -38,8 +39,8 @@ export default function ProductDetail() {
 
   const handleAddToCart = () => {
     if (!product) return
-    addItem(product.id)
-    toast.success(`已加入購物車`, { description: product.name })
+    addItem(product.id, qty)
+    toast.success(`已加入購物車`, { description: `${product.name} × ${qty}` })
   }
 
   if (isLoading) {
@@ -139,15 +140,40 @@ export default function ProductDetail() {
               <span className="text-muted-foreground">銷售 {product.sales.toLocaleString()} 件</span>
             </div>
 
-            <Button
-              size="lg"
-              className="w-full"
-              disabled={isOutOfStock}
-              onClick={handleAddToCart}
-            >
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              {isOutOfStock ? '目前缺貨' : '加入購物車'}
-            </Button>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center rounded-md border">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 rounded-r-none"
+                  disabled={isOutOfStock || qty <= 1}
+                  onClick={() => setQty(q => Math.max(1, q - 1))}
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <span className="w-10 text-center text-sm font-medium tabular-nums">{qty}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 rounded-l-none"
+                  disabled={isOutOfStock || qty >= product.stock}
+                  onClick={() => setQty(q => Math.min(product.stock, q + 1))}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <Button
+                size="lg"
+                className="flex-1"
+                disabled={isOutOfStock}
+                onClick={handleAddToCart}
+              >
+                <ShoppingCart className="mr-2 h-5 w-5" />
+                {isOutOfStock ? '目前缺貨' : '加入購物車'}
+              </Button>
+            </div>
           </div>
         </div>
 
