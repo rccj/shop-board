@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Shop Board</title>
+    <script>
+      // GitHub Pages SPA redirect
+      // Encode the path as a query param and redirect to index.html
+      const repo = '/shop-board'
+      const path = window.location.pathname.replace(repo, '') || '/'
+      const search = window.location.search
+      const hash = window.location.hash
+      window.location.replace(
+        repo + '/?p=' + encodeURIComponent(path + search) + hash
+      )
+    </script>
+  </head>
+  <body></body>
+</html>
