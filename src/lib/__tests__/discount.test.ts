@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { calculateCart } from '../discount'
-import type { Product, CartItem } from '@/types/discount'
+import type { Product } from '@/types/discount'
 
 const p = (id: number, price: number, category: Product['category']): Product => ({
   id,
