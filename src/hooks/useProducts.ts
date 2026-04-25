@@ -11,10 +11,6 @@ import {
 } from '@/api/products'
 import { BatchUpdatePayload } from '@/types/product'
 
-const defaultParams: ProductQueryParams = {
-  page: 1,
-  pageSize: 10,
-}
 
 export function useProducts() {
   const [products, setProducts] = useState<Product[]>([])

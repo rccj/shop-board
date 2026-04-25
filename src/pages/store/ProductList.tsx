@@ -47,8 +47,8 @@ export default function ProductList() {
   }
 
   useEffect(() => {
-    getProducts({ page: 1, pageSize: 6, sortBy: 'sales', sortOrder: 'desc' })
-      .then(res => setHotProducts(res.data))
+    getProducts({ page: 1, pageSize: 10, sortBy: 'sales', sortOrder: 'desc' })
+      .then(res => setHotProducts(res.data.slice(0, 6)))
       .catch(() => {})
       .finally(() => setHotLoading(false))
   }, [])
