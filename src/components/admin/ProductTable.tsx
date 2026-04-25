@@ -85,6 +85,7 @@ export function ProductTable({
   }
 
   return (
+    <div className="overflow-x-auto">
     <Table>
       <TableHeader>
         <TableRow>
@@ -218,5 +219,6 @@ export function ProductTable({
         })}
       </TableBody>
     </Table>
+    </div>
   )
 }

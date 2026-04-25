@@ -49,7 +49,7 @@ export function ProductFilters({
   return (
     <div className="rounded-lg border p-4 space-y-3">
       {/* 搜尋 */}
-      <div className="relative max-w-sm">
+      <div className="relative w-full max-w-sm">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder="搜尋商品名稱…"
@@ -60,7 +60,7 @@ export function ProductFilters({
       </div>
 
       {/* 篩選器 */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3 overflow-x-auto pb-1">
         <div className="flex flex-col gap-1">
           <Label className="text-xs text-muted-foreground">分類</Label>
           <Select
