@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate, Link } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import ProductList from '@/pages/store/ProductList'
 import ProductDetail from '@/pages/store/ProductDetail'
@@ -22,7 +22,7 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <BrowserRouter basename="/shop-board">
+    <HashRouter>
       <Toaster richColors position="top-right" />
       <Routes>
         <Route path="/" element={<ProductList />} />
@@ -39,6 +39,6 @@ export default function App() {
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
