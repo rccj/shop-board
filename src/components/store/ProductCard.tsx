@@ -19,34 +19,31 @@ export function ProductCard({ product, onAddToCart }: Props) {
     : null
 
   return (
-    <div className="group overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-md">
-      <Link to={`/products/${product.id}`} className="block">
-        <div className="relative aspect-square overflow-hidden bg-muted">
-          <img
-            src={product.images[0]}
-            alt={product.name}
-            className="h-full w-full object-cover transition-transform group-hover:scale-105"
-            loading="lazy"
-          />
-          {isOutOfStock && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-              <Badge variant="destructive">缺貨</Badge>
-            </div>
-          )}
-          {discountPct && !isOutOfStock && (
-            <div className="absolute left-2 top-2">
-              <Badge variant="destructive">-{discountPct}%</Badge>
-            </div>
-          )}
-        </div>
-      </Link>
+    <Link
+      to={`/products/${product.id}`}
+      className="group block overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-md"
+    >
+      <div className="relative aspect-square overflow-hidden bg-muted">
+        <img
+          src={product.images[0]}
+          alt={product.name}
+          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          loading="lazy"
+        />
+        {isOutOfStock && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+            <Badge variant="destructive">缺貨</Badge>
+          </div>
+        )}
+        {discountPct && !isOutOfStock && (
+          <div className="absolute left-2 top-2">
+            <Badge variant="destructive">-{discountPct}%</Badge>
+          </div>
+        )}
+      </div>
       <div className="p-4 flex flex-col">
         <Badge className={`mb-2 text-xs self-start ${getCategoryColor(product.category.id)}`}>{product.category.name}</Badge>
-        <Link to={`/products/${product.id}`}>
-          <h3 className="mb-1 font-semibold leading-tight line-clamp-1 hover:underline">
-            {product.name}
-          </h3>
-        </Link>
+        <h3 className="mb-1 font-semibold leading-tight line-clamp-1">{product.name}</h3>
         <p className="mb-2 text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">{product.description}</p>
         <p className="mb-2 flex items-center gap-1 text-xs text-green-600 min-h-[20px]">
           {discountHint && <><Tag className="h-3 w-3" />{discountHint.split('，')[0]}</>}
@@ -66,13 +63,13 @@ export function ProductCard({ product, onAddToCart }: Props) {
             size="sm"
             className="shrink-0"
             disabled={isOutOfStock}
-            onClick={(e) => { e.preventDefault(); onAddToCart(product.id) }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAddToCart(product.id) }}
           >
             <ShoppingCart className="mr-1 h-4 w-4" />
             加入
           </Button>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
