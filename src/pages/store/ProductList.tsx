@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Search, ArrowRight, Tag } from 'lucide-react'
 import { toast } from 'sonner'
@@ -39,6 +39,7 @@ export default function ProductList() {
   const [debouncedSearch] = useDebounce(search, 300)
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>()
   const [sort, setSort] = useState<SortOption>('default')
+  const productListRef = useRef<HTMLElement>(null)
 
   const { addItem } = useCartStore()
 
@@ -122,7 +123,10 @@ export default function ProductList() {
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-xl font-bold">熱銷商品</h2>
             {!hotLoading && (
-              <Button variant="ghost" size="sm" onClick={() => setSort('sales_desc')}>
+              <Button variant="ghost" size="sm" onClick={() => {
+                setSort('sales_desc')
+                productListRef.current?.scrollIntoView({ behavior: 'smooth' })
+              }}>
                 查看更多 <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
             )}
@@ -161,7 +165,7 @@ export default function ProductList() {
         </section>
 
         {/* 商品列表 */}
-        <section className="py-6">
+        <section ref={productListRef} className="py-6">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-bold">
