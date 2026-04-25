@@ -44,7 +44,7 @@ export function ProductFilters({
   onStatusChange,
   onReset,
 }: Props) {
-  const activeCount = [categoryId, priceMin, priceMax, stockStatus, status].filter(Boolean).length
+  const activeCount = [categoryId, priceMin, priceMax, stockStatus, status].filter(v => v !== undefined).length
 
   return (
     <div className="rounded-lg border p-4 space-y-3">
@@ -127,8 +127,12 @@ export function ProductFilters({
             type="number"
             placeholder="0"
             className="w-28"
+            min={0}
             value={priceMin ?? ''}
-            onChange={e => onPriceMinChange(e.target.value ? Number(e.target.value) : undefined)}
+            onChange={e => {
+              const v = Number(e.target.value)
+              onPriceMinChange(e.target.value && v >= 0 ? v : undefined)
+            }}
           />
         </div>
 
@@ -138,8 +142,12 @@ export function ProductFilters({
             type="number"
             placeholder="不限"
             className="w-28"
+            min={0}
             value={priceMax ?? ''}
-            onChange={e => onPriceMaxChange(e.target.value ? Number(e.target.value) : undefined)}
+            onChange={e => {
+              const v = Number(e.target.value)
+              onPriceMaxChange(e.target.value && v >= 0 ? v : undefined)
+            }}
           />
         </div>
 
