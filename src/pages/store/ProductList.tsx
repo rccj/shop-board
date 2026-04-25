@@ -9,6 +9,7 @@ import { categories } from '@/mock/data'
 import { initStorage } from '@/mock/handlers'
 import { ProductCard } from '@/components/store/ProductCard'
 import { CartDrawer } from '@/components/store/CartDrawer'
+import { Footer } from '@/components/store/Footer'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -247,6 +248,7 @@ export default function ProductList() {
           )}
         </section>
       </main>
+      <Footer />
     </div>
   )
 }

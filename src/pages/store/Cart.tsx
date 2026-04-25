@@ -7,6 +7,7 @@ import { Product } from '@/types/product'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Footer } from '@/components/store/Footer'
 import { FULL_AMOUNT_HINT } from '@/lib/discountHints'
 
 export default function Cart() {
@@ -209,6 +210,7 @@ export default function Cart() {
           </div>
         )}
       </main>
+      <Footer />
     </div>
   )
 }

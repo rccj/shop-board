@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ProductCard } from '@/components/store/ProductCard'
+import { Footer } from '@/components/store/Footer'
 import { CATEGORY_DISCOUNT_HINTS } from '@/lib/discountHints'
 
 export default function ProductDetail() {
@@ -166,6 +167,7 @@ export default function ProductDetail() {
           </section>
         )}
       </main>
+      <Footer />
     </div>
   )
 }
