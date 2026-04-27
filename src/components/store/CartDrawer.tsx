@@ -147,7 +147,7 @@ export function CartDrawer() {
                     {detail && detail.discountType !== 'none' && (
                       <span className="flex items-center gap-1 text-xs text-green-600">
                         <Tag className="h-3 w-3" />
-                        {detail.discountType === 'full_amount' ? '滿額9折' : `分類${Math.round(detail.discountRate * 10)}折`}
+                        {detail.discountType === 'full_amount' ? '滿額9折' : detail.discountType === 'second_item_half' ? '第二件半價' : `分類${Math.round(detail.discountRate * 10)}折`}
                       </span>
                     )}
                   </div>
@@ -250,7 +250,7 @@ export function CartDrawer() {
                                 <span className="truncate mr-2">
                                   {product.name} ×{item.quantity}
                                   <span className="text-green-600 ml-1">
-                                    ({detail!.discountType === 'full_amount' ? '滿額9折' : `分類${Math.round(detail!.discountRate * 10)}折`})
+                                    ({detail!.discountType === 'full_amount' ? '滿額9折' : detail!.discountType === 'second_item_half' ? '第二件半價' : `分類${Math.round(detail!.discountRate * 10)}折`})
                                   </span>
                                 </span>
                                 <span className="shrink-0">-NT${(detail!.originalSubtotal - detail!.finalSubtotal).toLocaleString()}</span>

@@ -122,4 +122,66 @@ describe('calculateCart', () => {
       )
     ).toThrow('Product 999 not found')
   })
+
+  describe('SecondItemHalfPriceStrategy', () => {
+    it('qty=1 → no second_item_half discount', () => {
+      const result = calculateCart(
+        [{ productId: 1, quantity: 1 }],
+        [p(1, 1000, 'other')]
+      )
+      expect(result.appliedDiscount).toBe('none')
+      expect(result.finalTotal).toBe(1000)
+    })
+
+    it('qty=2 → effective rate 0.75 (second item half price)', () => {
+      const result = calculateCart(
+        [{ productId: 1, quantity: 2 }],
+        [p(1, 1000, 'other')]
+      )
+      expect(result.appliedDiscount).toBe('second_item_half')
+      // 1000 + 500 = 1500
+      expect(result.finalTotal).toBe(1500)
+      expect(result.totalSaved).toBe(500)
+    })
+
+    it('qty=3 → two full + one half = 2500', () => {
+      const result = calculateCart(
+        [{ productId: 1, quantity: 3 }],
+        [p(1, 1000, 'other')]
+      )
+      expect(result.appliedDiscount).toBe('second_item_half')
+      // 1000 + 500 + 1000 = 2500
+      expect(result.finalTotal).toBe(2500)
+    })
+
+    it('qty=4 → two pairs = 3000', () => {
+      const result = calculateCart(
+        [{ productId: 1, quantity: 4 }],
+        [p(1, 1000, 'other')]
+      )
+      expect(result.appliedDiscount).toBe('second_item_half')
+      // (1000+500) × 2 = 3000
+      expect(result.finalTotal).toBe(3000)
+    })
+
+    it('books qty=5 → category 0.7 beats second_item_half 0.75', () => {
+      const result = calculateCart(
+        [{ productId: 1, quantity: 5 }],
+        [p(1, 1000, 'books')]
+      )
+      expect(result.appliedDiscount).toBe('category')
+      expect(result.finalTotal).toBe(3500) // 5000 × 0.7
+    })
+
+    it('electronics qty=2 → category 0.85 vs second_item_half 0.75 → second_item_half wins', () => {
+      // electronics category: 2 items = 0.85 rate
+      // second_item_half: qty=2 = 0.75 rate → 0.75 < 0.85 → second_item_half wins
+      const result = calculateCart(
+        [{ productId: 1, quantity: 2 }],
+        [p(1, 1000, 'electronics')]
+      )
+      expect(result.appliedDiscount).toBe('second_item_half')
+      expect(result.finalTotal).toBe(1500)
+    })
+  })
 })

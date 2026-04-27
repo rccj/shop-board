@@ -47,6 +47,18 @@ class CategoryStrategy implements DiscountStrategy {
   }
 }
 
+class SecondItemHalfPriceStrategy implements DiscountStrategy {
+  name = 'second_item_half'
+  getRate(item: CartItemWithProduct, _context: DiscountContext): number | null {
+    const qty = item.item.quantity
+    if (qty < 2) return null
+    const pairs = Math.floor(qty / 2)
+    const remainder = qty % 2
+    // Effective rate: full pairs cost 1.5× (1 + 0.5), remainder at full price
+    return (pairs * 1.5 + remainder) / qty
+  }
+}
+
 class CartCalculator {
   constructor(private strategies: DiscountStrategy[]) {}
 
@@ -109,7 +121,7 @@ class CartCalculator {
     let appliedDiscount: CalculationResult['appliedDiscount']
     if (types.size === 1) {
       const only = [...types][0]
-      appliedDiscount = only === 'none' ? 'none' : (only as 'full_amount' | 'category')
+      appliedDiscount = only === 'none' ? 'none' : (only as 'full_amount' | 'category' | 'second_item_half')
     } else {
       appliedDiscount = 'mixed'
     }
@@ -121,6 +133,7 @@ class CartCalculator {
 export const calculator = new CartCalculator([
   new FullAmountStrategy(),
   new CategoryStrategy(),
+  new SecondItemHalfPriceStrategy(),
 ])
 
 export const calculateCart = (

@@ -2,7 +2,7 @@ export interface Product {
   id: number
   name: string
   price: number
-  category: 'electronics' | 'clothing' | 'books'
+  category: 'electronics' | 'clothing' | 'books' | 'other'
 }
 
 export interface CartItem {
@@ -16,7 +16,7 @@ export interface DiscountDetail {
   quantity: number
   originalPrice: number
   originalSubtotal: number
-  discountType: 'full_amount' | 'category' | 'none'
+  discountType: 'full_amount' | 'category' | 'second_item_half' | 'none'
   discountRate: number
   finalPrice: number
   finalSubtotal: number
@@ -27,6 +27,6 @@ export interface CalculationResult {
   originalTotal: number
   finalTotal: number
   totalSaved: number
-  appliedDiscount: 'full_amount' | 'category' | 'mixed' | 'none'
+  appliedDiscount: 'full_amount' | 'category' | 'second_item_half' | 'mixed' | 'none'
   discounts: DiscountDetail[]
 }
