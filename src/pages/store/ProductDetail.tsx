@@ -44,14 +44,13 @@ export default function ProductDetail() {
     toast.custom(t => (
       <div
         onClick={() => { setCartOpen(true); toast.dismiss(t) }}
-        className="flex cursor-pointer items-start gap-3 rounded-lg border bg-background px-4 py-3 shadow-lg w-[356px]"
+        className="flex cursor-pointer items-start gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 shadow-lg w-[356px] dark:border-green-800 dark:bg-green-950"
       >
-        <span className="mt-0.5 text-green-500">✓</span>
+        <span className="mt-0.5 text-green-600 dark:text-green-400">✓</span>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold">已加入購物車</p>
-          <p className="text-sm text-muted-foreground truncate">{product.name} × {qty}</p>
+          <p className="text-sm font-semibold text-green-900 dark:text-green-100">已加入購物車</p>
+          <p className="text-sm text-green-700 dark:text-green-300 truncate">{product.name} × {qty}</p>
         </div>
-        <span className="text-xs text-muted-foreground self-center shrink-0">查看購物車 →</span>
       </div>
     ))
   }
@@ -299,14 +298,13 @@ export default function ProductDetail() {
                   toast.custom(t => (
                     <div
                       onClick={() => { setCartOpen(true); toast.dismiss(t) }}
-                      className="flex cursor-pointer items-start gap-3 rounded-lg border bg-background px-4 py-3 shadow-lg w-[356px]"
+                      className="flex cursor-pointer items-start gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 shadow-lg w-[356px] dark:border-green-800 dark:bg-green-950"
                     >
-                      <span className="mt-0.5 text-green-500">✓</span>
+                      <span className="mt-0.5 text-green-600 dark:text-green-400">✓</span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold">已加入購物車</p>
-                        <p className="text-sm text-muted-foreground truncate">{name}</p>
+                        <p className="text-sm font-semibold text-green-900 dark:text-green-100">已加入購物車</p>
+                        <p className="text-sm text-green-700 dark:text-green-300 truncate">{name}</p>
                       </div>
-                      <span className="text-xs text-muted-foreground self-center shrink-0">查看購物車 →</span>
                     </div>
                   ))
                 }} />
