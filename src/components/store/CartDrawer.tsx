@@ -155,7 +155,7 @@ export function CartDrawer() {
                     {item.quantity === 1 ? (
                       <ConfirmPopover
                         trigger={
-                          <Button size="icon" variant="outline" className="h-6 w-6">
+                          <Button size="icon" variant="outline" className="h-6 w-6" data-testid="cart-minus">
                             <Minus className="h-3 w-3" />
                           </Button>
                         }
@@ -163,13 +163,13 @@ export function CartDrawer() {
                         onConfirm={() => removeItem(item.productId)}
                       />
                     ) : (
-                      <Button size="icon" variant="outline" className="h-6 w-6"
+                      <Button size="icon" variant="outline" className="h-6 w-6" data-testid="cart-minus"
                         onClick={() => updateQuantity(item.productId, item.quantity - 1)}>
                         <Minus className="h-3 w-3" />
                       </Button>
                     )}
                     <span className="w-6 text-center text-sm">{item.quantity}</span>
-                    <Button size="icon" variant="outline" className="h-6 w-6"
+                    <Button size="icon" variant="outline" className="h-6 w-6" data-testid="cart-plus"
                       onClick={() => addItem(item.productId)}>
                       <Plus className="h-3 w-3" />
                     </Button>
@@ -186,7 +186,7 @@ export function CartDrawer() {
                   </div>
                   <ConfirmPopover
                     trigger={
-                      <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive">
+                      <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive" data-testid="cart-trash">
                         <Trash2 className="h-3 w-3" />
                       </Button>
                     }

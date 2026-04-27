@@ -185,6 +185,7 @@ export default function ProductDetail() {
                     size="icon"
                     className="h-9 w-9 rounded-r-none"
                     disabled={isOutOfStock || qty <= 1}
+                    data-testid="qty-minus"
                     onClick={() => setQty(q => Math.max(1, q - 1))}
                   >
                     <Minus className="h-3.5 w-3.5" />

@@ -201,13 +201,14 @@ export function ProductTable({
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">
-                  <Button size="icon" variant="ghost" onClick={() => onEdit(product)}>
+                  <Button size="icon" variant="ghost" data-testid="edit-btn" onClick={() => onEdit(product)}>
                     <Pencil className="h-4 w-4" />
                   </Button>
                   <Button
                     size="icon"
                     variant="ghost"
                     className="text-destructive hover:text-destructive"
+                    data-testid="delete-btn"
                     onClick={() => onDelete(product)}
                   >
                     <Trash2 className="h-4 w-4" />

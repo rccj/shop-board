@@ -150,21 +150,21 @@ export function ProductAddModal({ open, onOpenChange, categories, onSave }: Prop
             </div>
 
             <div className="space-y-1">
-              <Label>商品名稱</Label>
-              <Input className={cn(errors.name && 'border-destructive focus-visible:ring-0')} {...register('name')} />
+              <Label htmlFor="add-name">商品名稱</Label>
+              <Input id="add-name" className={cn(errors.name && 'border-destructive focus-visible:ring-0')} {...register('name')} />
               {err(e('name'))}
             </div>
 
             <div className="space-y-1">
-              <Label>商品描述</Label>
-              <Input className={cn(errors.description && 'border-destructive focus-visible:ring-0')} {...register('description')} />
+              <Label htmlFor="add-description">商品描述</Label>
+              <Input id="add-description" className={cn(errors.description && 'border-destructive focus-visible:ring-0')} {...register('description')} />
               {err(e('description'))}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label>售價</Label>
-                <Input type="number" className={cn(errors.price && 'border-destructive focus-visible:ring-0')} {...register('price')} />
+                <Label htmlFor="add-price">售價</Label>
+                <Input id="add-price" type="number" className={cn(errors.price && 'border-destructive focus-visible:ring-0')} {...register('price')} />
                 {err(e('price'))}
               </div>
               <div className="space-y-1">
@@ -189,8 +189,8 @@ export function ProductAddModal({ open, onOpenChange, categories, onSave }: Prop
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label>庫存</Label>
-                <Input type="number" className={cn(errors.stock && 'border-destructive focus-visible:ring-0')} {...register('stock')} />
+                <Label htmlFor="add-stock">庫存</Label>
+                <Input id="add-stock" type="number" className={cn(errors.stock && 'border-destructive focus-visible:ring-0')} {...register('stock')} />
                 {err(e('stock'))}
               </div>
               <div className="space-y-1">

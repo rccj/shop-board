@@ -24,11 +24,11 @@ export function BatchActionToolbar({ count, onActivate, onDeactivate, onDelete, 
         </span>
         <div className="h-4 w-px bg-border" />
         <div className="flex items-center gap-1">
-          <Button size="sm" variant="ghost" className="rounded-full" onClick={onActivate}>
+          <Button size="sm" variant="ghost" className="rounded-full" data-testid="batch-activate" onClick={onActivate}>
             <Eye className="mr-1.5 h-3.5 w-3.5" />
             上架
           </Button>
-          <Button size="sm" variant="ghost" className="rounded-full" onClick={onDeactivate}>
+          <Button size="sm" variant="ghost" className="rounded-full" data-testid="batch-deactivate" onClick={onDeactivate}>
             <EyeOff className="mr-1.5 h-3.5 w-3.5" />
             下架
           </Button>

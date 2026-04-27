@@ -152,8 +152,8 @@ export function ProductEditModal({ product, open, onOpenChange, categories, onSa
             </div>
 
             <div className="space-y-1">
-              <Label>商品名稱</Label>
-              <Input className={cn(errors.name && 'border-destructive focus-visible:ring-0')} {...register('name')} />
+              <Label htmlFor="edit-name">商品名稱</Label>
+              <Input id="edit-name" className={cn(errors.name && 'border-destructive focus-visible:ring-0')} {...register('name')} />
               {err(e('name'))}
             </div>
 
