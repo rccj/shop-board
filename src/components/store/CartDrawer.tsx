@@ -184,10 +184,15 @@ export function CartDrawer() {
                       <p className="text-xs font-medium">NT${(product.price * item.quantity).toLocaleString()}</p>
                     )}
                   </div>
-                  <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive"
-                    onClick={() => removeItem(item.productId)}>
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
+                  <ConfirmPopover
+                    trigger={
+                      <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive">
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    }
+                    message="確定移除此商品？"
+                    onConfirm={() => removeItem(item.productId)}
+                  />
                 </div>
               ))}
             </div>
