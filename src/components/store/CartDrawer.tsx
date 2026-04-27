@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ShoppingCart, Minus, Plus, Trash2, Tag } from 'lucide-react'
-import { toast } from 'sonner'
 import { useCart } from '@/hooks/useCart'
 import { getCartProducts } from '@/api/cart'
 import { Product } from '@/types/product'
@@ -103,7 +102,7 @@ export function CartDrawer() {
                     </Button>
                     <span className="w-6 text-center text-sm">{item.quantity}</span>
                     <Button size="icon" variant="outline" className="h-6 w-6"
-                      onClick={() => { addItem(item.productId); toast.success('已加入購物車', { description: product.name }) }}>
+                      onClick={() => addItem(item.productId)}>
                       <Plus className="h-3 w-3" />
                     </Button>
                   </div>
