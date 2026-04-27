@@ -41,11 +41,14 @@ export default function ProductList() {
   const [sort, setSort] = useState<SortOption>('default')
   const productListRef = useRef<HTMLElement>(null)
 
-  const { addItem } = useCartStore()
+  const { addItem, setCartOpen } = useCartStore()
 
   const handleAddToCart = (id: number, name: string) => {
     addItem(id)
-    toast.success('已加入購物車', { description: name })
+    toast.success('已加入購物車', {
+      description: name,
+      action: { label: '查看購物車', onClick: () => setCartOpen(true) },
+    })
   }
 
   useEffect(() => {

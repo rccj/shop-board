@@ -25,7 +25,7 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <HashRouter>
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="top-center" />
       <Routes>
         <Route path="/" element={<ErrorBoundary><ProductList /></ErrorBoundary>} />
         <Route path="/products/:id" element={<ErrorBoundary><ProductDetail /></ErrorBoundary>} />

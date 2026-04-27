@@ -17,7 +17,7 @@ import { CATEGORY_DISCOUNT_HINTS } from '@/lib/discountHints'
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { addItem } = useCartStore()
+  const { addItem, setCartOpen } = useCartStore()
   const [product, setProduct] = useState<Product | null>(null)
   const [related, setRelated] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -41,7 +41,10 @@ export default function ProductDetail() {
   const handleAddToCart = () => {
     if (!product) return
     addItem(product.id, qty)
-    toast.success(`已加入購物車`, { description: `${product.name} × ${qty}` })
+    toast.success(`已加入購物車`, {
+      description: `${product.name} × ${qty}`,
+      action: { label: '查看購物車', onClick: () => setCartOpen(true) },
+    })
   }
 
   if (isLoading) {
@@ -284,7 +287,10 @@ export default function ProductDetail() {
                 <ProductCard key={p.id} product={p} onAddToCart={(pid) => {
                   addItem(pid)
                   const name = related.find(r => r.id === pid)?.name ?? ''
-                  toast.success('已加入購物車', { description: name })
+                  toast.success('已加入購物車', {
+                    description: name,
+                    action: { label: '查看購物車', onClick: () => setCartOpen(true) },
+                  })
                 }} />
               ))}
             </div>
