@@ -41,10 +41,19 @@ export default function ProductDetail() {
   const handleAddToCart = () => {
     if (!product) return
     addItem(product.id, qty)
-    toast.success(`已加入購物車`, {
-      description: `${product.name} × ${qty}`,
-      action: { label: '查看購物車', onClick: () => setCartOpen(true) },
-    })
+    toast.custom(t => (
+      <div
+        onClick={() => { setCartOpen(true); toast.dismiss(t) }}
+        className="flex cursor-pointer items-start gap-3 rounded-lg border bg-background px-4 py-3 shadow-lg w-[356px]"
+      >
+        <span className="mt-0.5 text-green-500">✓</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold">已加入購物車</p>
+          <p className="text-sm text-muted-foreground truncate">{product.name} × {qty}</p>
+        </div>
+        <span className="text-xs text-muted-foreground self-center shrink-0">查看購物車 →</span>
+      </div>
+    ))
   }
 
   if (isLoading) {
@@ -287,10 +296,19 @@ export default function ProductDetail() {
                 <ProductCard key={p.id} product={p} onAddToCart={(pid) => {
                   addItem(pid)
                   const name = related.find(r => r.id === pid)?.name ?? ''
-                  toast.success('已加入購物車', {
-                    description: name,
-                    action: { label: '查看購物車', onClick: () => setCartOpen(true) },
-                  })
+                  toast.custom(t => (
+                    <div
+                      onClick={() => { setCartOpen(true); toast.dismiss(t) }}
+                      className="flex cursor-pointer items-start gap-3 rounded-lg border bg-background px-4 py-3 shadow-lg w-[356px]"
+                    >
+                      <span className="mt-0.5 text-green-500">✓</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold">已加入購物車</p>
+                        <p className="text-sm text-muted-foreground truncate">{name}</p>
+                      </div>
+                      <span className="text-xs text-muted-foreground self-center shrink-0">查看購物車 →</span>
+                    </div>
+                  ))
                 }} />
               ))}
             </div>
