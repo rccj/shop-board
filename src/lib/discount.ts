@@ -151,7 +151,9 @@ class CartCalculator {
 
     const types = new Set(discounts.map(d => d.discountType))
     let appliedDiscount: CalculationResult['appliedDiscount']
-    if (types.size === 1) {
+    if (types.size === 0) {
+      appliedDiscount = 'none'
+    } else if (types.size === 1) {
       const only = [...types][0]
       appliedDiscount = only === 'none' ? 'none' : (only as 'full_amount' | 'category' | 'second_item_half')
     } else {

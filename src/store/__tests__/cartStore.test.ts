@@ -54,6 +54,18 @@ describe('cartStore', () => {
     expect(useCartStore.getState().items).toHaveLength(0)
   })
 
+  it('updateQuantity on non-existent productId is a no-op', () => {
+    useCartStore.getState().addItem(1)
+    useCartStore.getState().updateQuantity(999, 5)
+    expect(useCartStore.getState().items).toHaveLength(1)
+    expect(useCartStore.getState().items[0].quantity).toBe(1)
+  })
+
+  it('removeItem on empty cart stays empty', () => {
+    useCartStore.getState().removeItem(1)
+    expect(useCartStore.getState().items).toHaveLength(0)
+  })
+
   it('multiple products tracked independently', () => {
     useCartStore.getState().addItem(1, 2)
     useCartStore.getState().addItem(2, 1)

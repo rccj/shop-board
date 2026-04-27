@@ -114,6 +114,48 @@ describe('calculateCart', () => {
     expect(result.finalTotal).toBe(1173)
   })
 
+  it('empty cart returns zero totals and no discount', () => {
+    const result = calculateCart([], [])
+    expect(result.originalTotal).toBe(0)
+    expect(result.finalTotal).toBe(0)
+    expect(result.totalSaved).toBe(0)
+    expect(result.appliedDiscount).toBe('none')
+    expect(result.discounts).toHaveLength(0)
+  })
+
+  it('cross-product category total: books A×2 + books B×3 = 5 → both get 7折', () => {
+    const result = calculateCart(
+      [{ productId: 1, quantity: 2 }, { productId: 2, quantity: 3 }],
+      [p(1, 1000, 'books'), p(2, 500, 'books')]
+    )
+    // totalQty for books = 5 ≥ threshold → category discount applies to both
+    expect(result.discounts[0].discountType).toBe('category')
+    expect(result.discounts[1].discountType).toBe('category')
+    expect(result.discounts[0].finalSubtotal).toBe(1400) // 2000 × 0.7
+    expect(result.discounts[1].finalSubtotal).toBe(1050) // 1500 × 0.7
+  })
+
+  it('cross-product category total below threshold: books A×2 + books B×2 = 4 → no category', () => {
+    const result = calculateCart(
+      [{ productId: 1, quantity: 2 }, { productId: 2, quantity: 2 }],
+      [p(1, 1000, 'books'), p(2, 500, 'books')]
+    )
+    // totalQty = 4 < 5 → category does not apply, second_item_half does
+    expect(result.discounts[0].discountType).toBe('second_item_half')
+    expect(result.discounts[1].discountType).toBe('second_item_half')
+  })
+
+  it('second_item_half rounding: price=101, qty=2 → 151.5 rounds to 152', () => {
+    const result = calculateCart(
+      [{ productId: 1, quantity: 2 }],
+      [p(1, 101, 'other')]
+    )
+    expect(result.appliedDiscount).toBe('second_item_half')
+    // 101 × 1.5 = 151.5 → ROUND_HALF_UP → 152
+    expect(result.finalTotal).toBe(152)
+    expect(result.totalSaved).toBe(50)
+  })
+
   it('throws when product not found in cart', () => {
     expect(() =>
       calculateCart(

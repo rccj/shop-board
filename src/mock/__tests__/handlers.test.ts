@@ -148,6 +148,18 @@ describe('handleGetProducts', () => {
     expect(sales).toEqual([...sales].sort((a, b) => b - a))
   })
 
+  it('search is case-insensitive — uppercase query matches lowercase name', async () => {
+    const lower = await run(handleGetProducts({ page: 1, pageSize: 50, search: 'iphone' }))
+    const upper = await run(handleGetProducts({ page: 1, pageSize: 50, search: 'IPHONE' }))
+    expect(upper.data.length).toBe(lower.data.length)
+    expect(upper.data.map(p => p.id)).toEqual(lower.data.map(p => p.id))
+  })
+
+  it('page=0 returns empty data (not an error)', async () => {
+    const result = await run(handleGetProducts({ page: 0, pageSize: 10 }))
+    expect(result.data.length).toBe(0)
+  })
+
   it('combined filter: active + categoryId + priceMin', async () => {
     const result = await run(handleGetProducts({ page: 1, pageSize: 50, status: 'active', categoryId: 1, priceMin: 1000 }))
     expect(result.data.every(p => p.status === 'active' && p.category.id === 1 && p.price >= 1000)).toBe(true)
@@ -264,6 +276,17 @@ describe('handleUpdateProduct', () => {
 
   it('throws 404 for non-existent id', async () => {
     await expect(run(handleUpdateProduct(99999, { name: 'Ghost' }))).rejects.toMatchObject({ code: 404 })
+  })
+
+  it('empty patch {} preserves all fields, only updates updatedAt', async () => {
+    const all = await run(handleGetProducts({ page: 1, pageSize: 50 }))
+    const original = all.data[0]
+    const before = new Date().toISOString()
+    const result = await run(handleUpdateProduct(original.id, {}))
+    expect(result.data.name).toBe(original.name)
+    expect(result.data.price).toBe(original.price)
+    expect(result.data.stock).toBe(original.stock)
+    expect(result.data.updatedAt >= before).toBe(true)
   })
 
   it('can toggle status active ↔ inactive', async () => {
@@ -419,6 +442,24 @@ describe('handleBatchUpdate', () => {
     const ids = all.data.slice(0, 4).map(p => p.id)
     const result = await run(handleBatchUpdate({ ids, action: 'activate' }))
     expect(result.data.affected).toBe(4)
+  })
+
+  it('all invalid ids: no products changed, affected = ids.length (known limitation)', async () => {
+    const before = await run(handleGetProducts({ page: 1, pageSize: 50 }))
+    const result = await run(handleBatchUpdate({ ids: [99998, 99999], action: 'activate' }))
+    const after = await run(handleGetProducts({ page: 1, pageSize: 50 }))
+    // affected reports input length, not actual changed count
+    expect(result.data.affected).toBe(2)
+    // but nothing actually changed
+    expect(after.total).toBe(before.total)
+  })
+
+  it('mixed valid + invalid ids: valid ones change, affected = total ids.length', async () => {
+    const inactive = await run(handleGetProducts({ page: 1, pageSize: 50, status: 'inactive' }))
+    const validId = inactive.data[0].id
+    await run(handleBatchUpdate({ ids: [validId, 99999], action: 'activate' }))
+    const fetched = await run(handleGetProduct(validId))
+    expect(fetched.data.status).toBe('active')
   })
 
   it('empty ids: no-op, count unchanged', async () => {

@@ -170,6 +170,12 @@ describe('useCart — cart mutations', () => {
     expect(result.current.items[0].quantity).toBe(3)
   })
 
+  it('addItem with qty=0 adds item with quantity 0', () => {
+    const { result } = renderHook(() => useCart())
+    act(() => { result.current.addItem(1, 0) })
+    expect(result.current.items[0].quantity).toBe(0)
+  })
+
   it('addItem accumulates on repeated calls', () => {
     const { result } = renderHook(() => useCart())
     act(() => { result.current.addItem(1) })
