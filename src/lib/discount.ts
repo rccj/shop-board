@@ -16,15 +16,36 @@ interface DiscountContext {
   originalTotal: number
 }
 
+/**
+ * Each strategy owns both the display rate and the actual subtotal calculation.
+ * This allows complex pricing rules (e.g. second item half price, buy-N-get-one-free)
+ * to compute exact subtotals without approximating via an effective rate.
+ *
+ * rate       — for display only (e.g. 0.9 → "9折", 0.5 → "第二件半價")
+ * finalSubtotal — actual amount charged; CartCalculator picks lowest as best deal
+ */
+interface DiscountResult {
+  rate: number
+  finalSubtotal: number
+}
+
 interface DiscountStrategy {
   name: string
-  getRate(item: CartItemWithProduct, context: DiscountContext): number | null
+  calculate(item: CartItemWithProduct, context: DiscountContext): DiscountResult | null
 }
+
+const dec = (n: number) => new Decimal(n)
+const round = (d: Decimal) => d.toDecimalPlaces(0, Decimal.ROUND_HALF_UP).toNumber()
 
 class FullAmountStrategy implements DiscountStrategy {
   name = 'full_amount'
-  getRate(_item: CartItemWithProduct, context: DiscountContext): number | null {
-    return context.originalTotal >= 10000 ? 0.9 : null
+  calculate(item: CartItemWithProduct, context: DiscountContext): DiscountResult | null {
+    if (context.originalTotal < 10000) return null
+    const originalSubtotal = item.product.price * item.item.quantity
+    return {
+      rate: 0.9,
+      finalSubtotal: round(dec(originalSubtotal).mul(0.9)),
+    }
   }
 }
 
@@ -36,26 +57,33 @@ class CategoryStrategy implements DiscountStrategy {
     books: { min: 5, rate: 0.7 },
   }
 
-  getRate(item: CartItemWithProduct, context: DiscountContext): number | null {
+  calculate(item: CartItemWithProduct, context: DiscountContext): DiscountResult | null {
     const cat = item.product.category
     const threshold = this.thresholds[cat]
     if (!threshold) return null
     const totalQty = context.cartItems
       .filter(i => i.product.category === cat)
       .reduce((sum, i) => sum + i.item.quantity, 0)
-    return totalQty >= threshold.min ? threshold.rate : null
+    if (totalQty < threshold.min) return null
+    const originalSubtotal = item.product.price * item.item.quantity
+    return {
+      rate: threshold.rate,
+      finalSubtotal: round(dec(originalSubtotal).mul(threshold.rate)),
+    }
   }
 }
 
 class SecondItemHalfPriceStrategy implements DiscountStrategy {
   name = 'second_item_half'
-  getRate(item: CartItemWithProduct, _context: DiscountContext): number | null {
+  calculate(item: CartItemWithProduct, _context: DiscountContext): DiscountResult | null {
     const qty = item.item.quantity
     if (qty < 2) return null
+    const price = item.product.price
     const pairs = Math.floor(qty / 2)
     const remainder = qty % 2
-    // Effective rate: full pairs cost 1.5× (1 + 0.5), remainder at full price
-    return (pairs * 1.5 + remainder) / qty
+    // Each pair: full price + half price = 1.5× unit price
+    const finalSubtotal = round(dec(price).mul(pairs * 1.5 + remainder))
+    return { rate: 0.5, finalSubtotal }
   }
 }
 
@@ -77,28 +105,26 @@ class CartCalculator {
     const context: DiscountContext = { cartItems, originalTotal }
 
     const discounts: DiscountDetail[] = cartItems.map(({ item, product }) => {
-      const rates = this.strategies
-        .map(s => ({ name: s.name, rate: s.getRate({ item, product }, context) }))
-        .filter(r => r.rate !== null) as { name: string; rate: number }[]
+      const candidates = this.strategies
+        .map(s => ({ name: s.name, result: s.calculate({ item, product }, context) }))
+        .filter((c): c is { name: string; result: DiscountResult } => c.result !== null)
 
       let discountType: DiscountDetail['discountType'] = 'none'
       let discountRate = 1
+      const originalSubtotal = product.price * item.quantity
+      let finalSubtotal = originalSubtotal
 
-      if (rates.length > 0) {
-        const best = rates.reduce((a, b) => (a.rate < b.rate ? a : b))
-        discountRate = best.rate
+      if (candidates.length > 0) {
+        // Best deal = lowest finalSubtotal (what the customer actually pays)
+        const best = candidates.reduce((a, b) =>
+          a.result.finalSubtotal < b.result.finalSubtotal ? a : b
+        )
         discountType = best.name as DiscountDetail['discountType']
+        discountRate = best.result.rate
+        finalSubtotal = best.result.finalSubtotal
       }
 
-      const originalSubtotal = product.price * item.quantity
-      const finalSubtotal = new Decimal(originalSubtotal)
-        .mul(discountRate)
-        .toDecimalPlaces(0, Decimal.ROUND_HALF_UP)
-        .toNumber()
-      const finalPrice = new Decimal(product.price)
-        .mul(discountRate)
-        .toDecimalPlaces(0, Decimal.ROUND_HALF_UP)
-        .toNumber()
+      const finalPrice = round(dec(finalSubtotal).div(item.quantity))
 
       return {
         productId: product.id,
