@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Minus, Plus, Trash2, Tag, Info } from 'lucide-react'
+import { ShoppingCart, Minus, Plus, Trash2, Tag, ChevronDown } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
 import { useCartStore } from '@/store/cartStore'
 import { getCartProducts } from '@/api/cart'
@@ -60,6 +60,7 @@ export function CartDrawer() {
   const { isCartOpen, setCartOpen } = useCartStore()
   const triggerRef = useRef<HTMLButtonElement>(null)
   const [products, setProducts] = useState<Product[]>([])
+  const [discountExpanded, setDiscountExpanded] = useState(false)
   const cartCount = items.reduce((sum, i) => sum + i.quantity, 0)
 
   useEffect(() => {
@@ -200,20 +201,17 @@ export function CartDrawer() {
                   <div className="space-y-1.5">
                     <div className="flex justify-between text-xs">
                       <span className="flex items-center gap-1 font-medium">
-                        <Tag className="h-3 w-3 text-green-600" />
-                        {reached ? '已達滿額折扣！全單9折' : `再 NT$${(THRESHOLD - result.originalTotal).toLocaleString()} 享全單9折`}
-                      </span>
-                      <span className="flex items-center gap-1.5">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                            <Tag className="h-3 w-3 text-green-600 cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent side="top">
                             優惠不疊加，每件商品自動套用最優折扣
                           </TooltipContent>
                         </Tooltip>
-                        <span className="text-muted-foreground">{Math.round(pct)}%</span>
+                        {reached ? '已達滿額折扣！全單9折' : `再 NT$${(THRESHOLD - result.originalTotal).toLocaleString()} 享全單9折`}
                       </span>
+                      <span className="text-muted-foreground">{Math.round(pct)}%</span>
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
                       <div className={`h-full rounded-full transition-all duration-500 ${reached ? 'bg-green-500' : 'bg-primary'}`}
@@ -232,9 +230,35 @@ export function CartDrawer() {
                     <span>NT${result.originalTotal.toLocaleString()}</span>
                   </div>
                   {result.totalSaved > 0 && (
-                    <div className="flex justify-between text-green-600 text-xs">
-                      <span>折扣優惠</span>
-                      <span>-NT${result.totalSaved.toLocaleString()}</span>
+                    <div>
+                      <button
+                        className="flex w-full items-center justify-between text-green-600 text-xs py-0.5"
+                        onClick={() => setDiscountExpanded(e => !e)}
+                      >
+                        <span className="flex items-center gap-1">
+                          折扣優惠
+                          <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${discountExpanded ? 'rotate-180' : ''}`} />
+                        </span>
+                        <span>-NT${result.totalSaved.toLocaleString()}</span>
+                      </button>
+                      {discountExpanded && (
+                        <div className="mt-1 space-y-0.5 pl-2 border-l-2 border-green-100">
+                          {cartWithDetails
+                            .filter(({ detail }) => detail && detail.discountType !== 'none')
+                            .map(({ product, item, detail }) => (
+                              <div key={product.id} className="flex justify-between text-[10px] text-muted-foreground">
+                                <span className="truncate mr-2">
+                                  {product.name} ×{item.quantity}
+                                  <span className="text-green-600 ml-1">
+                                    ({detail!.discountType === 'full_amount' ? '滿額9折' : `分類${Math.round(detail!.discountRate * 10)}折`})
+                                  </span>
+                                </span>
+                                <span className="shrink-0">-NT${(detail!.originalSubtotal - detail!.finalSubtotal).toLocaleString()}</span>
+                              </div>
+                            ))
+                          }
+                        </div>
+                      )}
                     </div>
                   )}
                   <div className="flex justify-between font-semibold">
