@@ -14,6 +14,7 @@ interface CartItemWithProduct {
 interface DiscountContext {
   cartItems: CartItemWithProduct[]
   originalTotal: number
+  categoryTotals: Map<string, number>
 }
 
 /**
@@ -61,9 +62,7 @@ class CategoryStrategy implements DiscountStrategy {
     const cat = item.product.category
     const threshold = this.thresholds[cat]
     if (!threshold) return null
-    const totalQty = context.cartItems
-      .filter(i => i.product.category === cat)
-      .reduce((sum, i) => sum + i.item.quantity, 0)
+    const totalQty = context.categoryTotals.get(cat) ?? 0
     if (totalQty < threshold.min) return null
     const originalSubtotal = item.product.price * item.item.quantity
     return {
@@ -88,11 +87,13 @@ class SecondItemHalfPriceStrategy implements DiscountStrategy {
 }
 
 class CartCalculator {
-  constructor(private strategies: DiscountStrategy[]) {}
+  constructor(private strategies: DiscountStrategy[]) { }
 
   calculate(cart: CartItem[], products: Product[]): CalculationResult {
+    const productMap = new Map(products.map(p => [p.id, p]))
+
     const cartItems: CartItemWithProduct[] = cart.map(item => {
-      const product = products.find(p => p.id === item.productId)
+      const product = productMap.get(item.productId)
       if (!product) throw new Error(`Product ${item.productId} not found`)
       return { item, product }
     })
@@ -102,7 +103,12 @@ class CartCalculator {
       0
     )
 
-    const context: DiscountContext = { cartItems, originalTotal }
+    const categoryTotals = new Map<string, number>()
+    for (const { item, product } of cartItems) {
+      categoryTotals.set(product.category, (categoryTotals.get(product.category) ?? 0) + item.quantity)
+    }
+
+    const context: DiscountContext = { cartItems, originalTotal, categoryTotals }
 
     const discounts: DiscountDetail[] = cartItems.map(({ item, product }) => {
       const candidates = this.strategies
