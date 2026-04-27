@@ -26,7 +26,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { FULL_AMOUNT_HINT } from '@/lib/discountHints'
 
 function ConfirmPopover({
   trigger,
@@ -203,6 +202,8 @@ export function CartDrawer() {
                       <span className="flex items-center gap-1 font-medium">
                         <Tag className="h-3 w-3 text-green-600" />
                         {reached ? '已達滿額折扣！全單9折' : `再 NT$${(THRESHOLD - result.originalTotal).toLocaleString()} 享全單9折`}
+                      </span>
+                      <span className="flex items-center gap-1.5">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-3 w-3 text-muted-foreground cursor-help" />
@@ -211,8 +212,8 @@ export function CartDrawer() {
                             優惠不疊加，每件商品自動套用最優折扣
                           </TooltipContent>
                         </Tooltip>
+                        <span className="text-muted-foreground">{Math.round(pct)}%</span>
                       </span>
-                      <span className="text-muted-foreground">{Math.round(pct)}%</span>
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
                       <div className={`h-full rounded-full transition-all duration-500 ${reached ? 'bg-green-500' : 'bg-primary'}`}
@@ -248,7 +249,6 @@ export function CartDrawer() {
                   <Button className="w-full" size="lg">前往結帳</Button>
                 </Link>
               </DrawerClose>
-              <p className="text-center text-xs text-muted-foreground">{FULL_AMOUNT_HINT}</p>
             </div>
           </div>
         )}
