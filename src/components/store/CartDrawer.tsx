@@ -203,7 +203,7 @@ export function CartDrawer() {
                       <span className="flex items-center gap-1 font-medium">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Tag className="h-3 w-3 text-green-600 cursor-help" />
+                            <Tag className="h-3 w-3 text-green-600 cursor-pointer" />
                           </TooltipTrigger>
                           <TooltipContent side="top">
                             優惠不疊加，每件商品自動套用最優折扣
@@ -211,7 +211,7 @@ export function CartDrawer() {
                         </Tooltip>
                         {reached ? '已達滿額折扣！全單9折' : `再 NT$${(THRESHOLD - result.originalTotal).toLocaleString()} 享全單9折`}
                       </span>
-                      <span className="text-muted-foreground">{Math.round(pct)}%</span>
+                      <span className="text-muted-foreground">{Math.floor(pct)}%</span>
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
                       <div className={`h-full rounded-full transition-all duration-500 ${reached ? 'bg-green-500' : 'bg-primary'}`}
