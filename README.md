@@ -1,6 +1,6 @@
 # Shop Board
 
-E-commerce storefront & admin panel built as a frontend interview project.
+E-commerce storefront & admin panel with a full-featured product management system.
 
 **[Live Demo](https://rccj.github.io/shop-board)**
 
