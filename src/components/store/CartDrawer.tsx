@@ -12,6 +12,16 @@ import {
   DrawerTitle,
   DrawerClose,
 } from '@/components/ui/drawer'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { FULL_AMOUNT_HINT } from '@/lib/discountHints'
@@ -19,7 +29,16 @@ import { FULL_AMOUNT_HINT } from '@/lib/discountHints'
 export function CartDrawer() {
   const { items, result, addItem, removeItem, updateQuantity, clearCart, calculate } = useCart()
   const [products, setProducts] = useState<Product[]>([])
+  const [pendingRemoveId, setPendingRemoveId] = useState<number | null>(null)
   const cartCount = items.reduce((sum, i) => sum + i.quantity, 0)
+
+  const handleRemove = (productId: number) => {
+    if (items.length === 1) {
+      setPendingRemoveId(productId)
+    } else {
+      removeItem(productId)
+    }
+  }
 
   useEffect(() => {
     setProducts(items.length > 0 ? getCartProducts(items.map(i => i.productId)) : [])
@@ -37,6 +56,7 @@ export function CartDrawer() {
   })
 
   return (
+    <>
     <Drawer direction="right">
       <DrawerTrigger asChild>
         <Button variant="outline" size="sm" className="relative">
@@ -117,7 +137,7 @@ export function CartDrawer() {
                     )}
                   </div>
                   <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive"
-                    onClick={() => removeItem(item.productId)}>
+                    onClick={() => handleRemove(item.productId)}>
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
@@ -178,5 +198,29 @@ export function CartDrawer() {
         )}
       </DrawerContent>
     </Drawer>
+
+    <AlertDialog open={pendingRemoveId !== null} onOpenChange={open => { if (!open) setPendingRemoveId(null) }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>移除商品</AlertDialogTitle>
+          <AlertDialogDescription>
+            移除後購物車將會清空，確定要繼續嗎？
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>取消</AlertDialogCancel>
+          <AlertDialogAction
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            onClick={() => {
+              if (pendingRemoveId !== null) removeItem(pendingRemoveId)
+              setPendingRemoveId(null)
+            }}
+          >
+            確定移除
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   )
 }
