@@ -168,14 +168,19 @@ export default function Checkout() {
                         <p className="text-muted-foreground">× {item.quantity}</p>
                       </div>
                       <div className="text-right shrink-0">
-                        {hasDiscount ? (
-                          <>
-                            <p className="font-medium text-green-600 tabular-nums">NT${detail.finalSubtotal.toLocaleString()}</p>
-                            <p className="text-xs text-muted-foreground line-through tabular-nums">NT${detail.originalSubtotal.toLocaleString()}</p>
-                          </>
-                        ) : (
-                          <p className="font-medium tabular-nums">NT${(product.price * item.quantity).toLocaleString()}</p>
-                        )}
+                        {(() => {
+                          const markedSubtotal = (product.compareAtPrice ?? product.price) * item.quantity
+                          const finalAmt = hasDiscount ? detail.finalSubtotal : product.price * item.quantity
+                          const showStrike = markedSubtotal > finalAmt
+                          return showStrike ? (
+                            <>
+                              <p className="font-medium text-green-600 tabular-nums">NT${finalAmt.toLocaleString()}</p>
+                              <p className="text-xs text-muted-foreground line-through tabular-nums">NT${markedSubtotal.toLocaleString()}</p>
+                            </>
+                          ) : (
+                            <p className="font-medium tabular-nums">NT${finalAmt.toLocaleString()}</p>
+                          )
+                        })()}
                       </div>
                     </div>
                   )
@@ -184,22 +189,32 @@ export default function Checkout() {
 
               <Separator />
 
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between text-muted-foreground">
-                  <span>商品小計</span>
-                  <span>NT${result?.originalTotal.toLocaleString() ?? '—'}</span>
-                </div>
-                {result && result.totalSaved > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span>折扣優惠</span>
-                    <span>-NT${result.totalSaved.toLocaleString()}</span>
+              {(() => {
+                const markedTotal = items.reduce((sum, item) => {
+                  const product = products.find(p => p.id === item.productId)
+                  if (!product) return sum
+                  return sum + (product.compareAtPrice ?? product.price) * item.quantity
+                }, 0)
+                const totalDisplaySaved = result ? markedTotal - result.finalTotal : 0
+                return (
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>商品小計</span>
+                      <span>NT${markedTotal.toLocaleString()}</span>
+                    </div>
+                    {totalDisplaySaved > 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>折扣優惠</span>
+                        <span>-NT${totalDisplaySaved.toLocaleString()}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>運費</span>
+                      <span>免費</span>
+                    </div>
                   </div>
-                )}
-                <div className="flex justify-between text-muted-foreground">
-                  <span>運費</span>
-                  <span>免費</span>
-                </div>
-              </div>
+                )
+              })()}
               <Separator />
               <div className="flex items-center justify-between font-semibold">
                 <span>應付金額</span>

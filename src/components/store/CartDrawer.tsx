@@ -52,6 +52,10 @@ export function CartDrawer() {
     return [{ item, product, detail }]
   })
 
+  const markedTotal = cartWithDetails.reduce(
+    (sum, { product, item }) => sum + (product.compareAtPrice ?? product.price) * item.quantity, 0
+  )
+
   return (
     <Drawer direction="right">
       <DrawerTrigger asChild>
@@ -200,30 +204,45 @@ export function CartDrawer() {
 
               <Separator />
 
-              {result && (
-                <div className="space-y-1 text-sm">
-                  <div className="flex justify-between text-muted-foreground">
-                    <span className="shrink-0">小計</span>
-                    <span className="min-w-0 truncate text-right tabular-nums ml-2">NT${result.originalTotal.toLocaleString()}</span>
-                  </div>
-                  {result.totalSaved > 0 && (
-                    <div>
-                      <button
-                        className="flex w-full items-center justify-between text-green-600 text-xs py-0.5"
-                        onClick={() => setDiscountExpanded(e => !e)}
-                      >
-                        <span className="flex items-center gap-1 shrink-0">
-                          折扣優惠
-                          <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${discountExpanded ? 'rotate-180' : ''}`} />
-                        </span>
-                        <span className="min-w-0 truncate text-right tabular-nums ml-2">-NT${result.totalSaved.toLocaleString()}</span>
-                      </button>
-                      {discountExpanded && (
-                        <div className="mt-1 space-y-0.5 pl-2 border-l-2 border-green-100">
-                          {cartWithDetails
-                            .filter(({ detail }) => detail && detail.discountType !== 'none')
-                            .map(({ product, item, detail }) => (
-                              <div key={product.id} className="flex justify-between text-[10px] text-muted-foreground">
+              {result && (() => {
+                const totalDisplaySaved = markedTotal - result.finalTotal
+                const productMarkdownItems = cartWithDetails.filter(
+                  ({ product }) => product.compareAtPrice && product.compareAtPrice > product.price
+                )
+                const cartDiscountItems = cartWithDetails.filter(
+                  ({ detail }) => detail && detail.discountType !== 'none'
+                )
+                return (
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between text-muted-foreground">
+                      <span className="shrink-0">小計</span>
+                      <span className="min-w-0 truncate text-right tabular-nums ml-2">NT${markedTotal.toLocaleString()}</span>
+                    </div>
+                    {totalDisplaySaved > 0 && (
+                      <div>
+                        <button
+                          className="flex w-full items-center justify-between text-green-600 text-xs py-0.5"
+                          onClick={() => setDiscountExpanded(e => !e)}
+                        >
+                          <span className="flex items-center gap-1 shrink-0">
+                            折扣優惠
+                            <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${discountExpanded ? 'rotate-180' : ''}`} />
+                          </span>
+                          <span className="min-w-0 truncate text-right tabular-nums ml-2">-NT${totalDisplaySaved.toLocaleString()}</span>
+                        </button>
+                        {discountExpanded && (
+                          <div className="mt-1 space-y-0.5 pl-2 border-l-2 border-green-100">
+                            {productMarkdownItems.map(({ product, item }) => (
+                              <div key={`md-${product.id}`} className="flex justify-between text-[10px] text-muted-foreground">
+                                <span className="truncate mr-2">
+                                  {product.name} ×{item.quantity}
+                                  <span className="text-green-600 ml-1">(商品折扣)</span>
+                                </span>
+                                <span className="shrink-0">-NT${((product.compareAtPrice! - product.price) * item.quantity).toLocaleString()}</span>
+                              </div>
+                            ))}
+                            {cartDiscountItems.map(({ product, item, detail }) => (
+                              <div key={`cd-${product.id}`} className="flex justify-between text-[10px] text-muted-foreground">
                                 <span className="truncate mr-2">
                                   {product.name} ×{item.quantity}
                                   <span className="text-green-600 ml-1">
@@ -232,18 +251,18 @@ export function CartDrawer() {
                                 </span>
                                 <span className="shrink-0">-NT${(detail!.originalSubtotal - detail!.finalSubtotal).toLocaleString()}</span>
                               </div>
-                            ))
-                          }
-                        </div>
-                      )}
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <div className="flex justify-between font-semibold">
+                      <span className="shrink-0">應付金額</span>
+                      <span className="min-w-0 truncate text-right tabular-nums ml-2">NT${result.finalTotal.toLocaleString()}</span>
                     </div>
-                  )}
-                  <div className="flex justify-between font-semibold">
-                    <span className="shrink-0">應付金額</span>
-                    <span className="min-w-0 truncate text-right tabular-nums ml-2">NT${result.finalTotal.toLocaleString()}</span>
                   </div>
-                </div>
-              )}
+                )
+              })()}
 
               <DrawerClose asChild>
                 <Link to="/checkout" className="block w-full">
