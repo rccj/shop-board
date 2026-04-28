@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, CheckCircle2, CreditCard, MapPin, User } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
 import { useCartStore } from '@/store/cartStore'
+import { getCartProducts } from '@/api/cart'
+import { Product } from '@/types/product'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,17 +12,36 @@ import { Separator } from '@/components/ui/separator'
 import { Footer } from '@/components/store/Footer'
 
 export default function Checkout() {
-  const { result } = useCart()
+  const { result, calculate } = useCart()
   const { items, clearCart } = useCartStore()
   const navigate = useNavigate()
   const [submitted, setSubmitted] = useState(false)
+  const [countdown, setCountdown] = useState(3)
+  const [products, setProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    if (items.length > 0) setProducts(getCartProducts(items.map(i => i.productId)))
+  }, [items])
+
+  useEffect(() => {
+    void calculate()
+  }, [calculate])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitted(true)
     clearCart()
-    setTimeout(() => navigate('/'), 3000)
   }
+
+  useEffect(() => {
+    if (!submitted) return
+    if (countdown <= 0) {
+      navigate('/')
+      return
+    }
+    const timer = setTimeout(() => setCountdown(c => c - 1), 1000)
+    return () => clearTimeout(timer)
+  }, [submitted, countdown, navigate])
 
   if (submitted) {
     return (
@@ -28,7 +49,7 @@ export default function Checkout() {
         <CheckCircle2 className="h-16 w-16 text-green-500" />
         <h1 className="text-2xl font-bold">訂單已送出！</h1>
         <p className="text-muted-foreground">感謝您的購買，我們將盡快為您處理。</p>
-        <p className="text-sm text-muted-foreground">3 秒後自動返回首頁…</p>
+        <p className="text-sm text-muted-foreground">{countdown} 秒後自動返回首頁…</p>
         <Link to="/"><Button variant="outline">立即返回首頁</Button></Link>
       </div>
     )
@@ -121,6 +142,42 @@ export default function Checkout() {
           <div>
             <div className="sticky top-20 rounded-lg border p-4 space-y-3">
               <h2 className="font-semibold">訂單摘要</h2>
+
+              {/* 商品列表 */}
+              <div className="space-y-2">
+                {items.map(item => {
+                  const product = products.find(p => p.id === item.productId)
+                  const detail = result?.discounts.find(d => d.productId === item.productId)
+                  if (!product) return null
+                  const hasDiscount = detail && detail.discountType !== 'none'
+                  return (
+                    <div key={item.productId} className="flex items-start gap-2 text-sm">
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="h-10 w-10 rounded object-cover bg-muted shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="line-clamp-1 font-medium leading-tight">{product.name}</p>
+                        <p className="text-muted-foreground">× {item.quantity}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        {hasDiscount ? (
+                          <>
+                            <p className="font-medium text-green-600">NT${detail.finalSubtotal.toLocaleString()}</p>
+                            <p className="text-xs text-muted-foreground line-through">NT${detail.originalSubtotal.toLocaleString()}</p>
+                          </>
+                        ) : (
+                          <p className="font-medium">NT${(product.price * item.quantity).toLocaleString()}</p>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <Separator />
+
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between text-muted-foreground">
                   <span>商品小計</span>

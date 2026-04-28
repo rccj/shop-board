@@ -62,7 +62,7 @@ export default function ProductList() {
   useEffect(() => {
     getProducts({ page: 1, pageSize: 10, sortBy: 'sales', sortOrder: 'desc', status: 'active' })
       .then(res => setHotProducts(res.data.slice(0, 6)))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setHotLoading(false))
   }, [])
 
@@ -111,23 +111,23 @@ export default function ProductList() {
       <main className="container mx-auto px-4">
         {/* Hero Banner */}
         <section className="py-10">
-            <div className="rounded-2xl bg-gradient-to-r from-slate-900 to-slate-700 px-8 py-10 text-white">
-              <p className="mb-1 text-sm font-medium text-slate-300">限時活動</p>
-              <h2 className="mb-2 text-3xl font-bold">滿 NT$10,000 享 9 折</h2>
-              <p className="mb-4 text-slate-300">{FULL_AMOUNT_HINT}</p>
-              <div className="flex flex-wrap gap-3 text-sm">
-                <span className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1">
-                  <Tag className="h-3 w-3" /> 3C 買 2 件 85 折
-                </span>
-                <span className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1">
-                  <Tag className="h-3 w-3" /> 服飾 買 3 件 8 折
-                </span>
-                <span className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1">
-                  <Tag className="h-3 w-3" /> 書籍 買 5 件 7 折
-                </span>
-              </div>
+          <div className="rounded-2xl bg-gradient-to-r from-slate-900 to-slate-700 px-8 py-10 text-white">
+            <p className="mb-1 text-sm font-medium text-slate-300">限時活動</p>
+            <h2 className="mb-2 text-3xl font-bold">滿 NT$10,000 享 9 折</h2>
+            <p className="mb-4 text-slate-300">不限金額，全站免運費</p>
+            <div className="flex flex-wrap gap-3 text-sm">
+              <span className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1">
+                <Tag className="h-3 w-3" /> 3C 買 2 件 85 折
+              </span>
+              <span className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1">
+                <Tag className="h-3 w-3" /> 服飾 買 3 件 8 折
+              </span>
+              <span className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1">
+                <Tag className="h-3 w-3" /> 書籍 買 5 件 7 折
+              </span>
             </div>
-          </section>
+          </div>
+        </section>
 
         {/* 熱銷商品 */}
         <section className="pb-8">
@@ -145,31 +145,31 @@ export default function ProductList() {
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
             {hotLoading
               ? Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="overflow-hidden rounded-lg border bg-card">
-                    <Skeleton className="aspect-square w-full" />
-                    <div className="p-4 flex flex-col min-h-[198px]">
-                      <Skeleton className="mb-2 h-5 w-16 rounded-full" />
-                      <Skeleton className="mb-1 h-5 w-3/4" />
-                      <Skeleton className="mb-0.5 h-4 w-full" />
-                      <Skeleton className="mb-2 h-4 w-2/3" />
-                      <Skeleton className="mb-2 h-4 w-1/2" />
-                      <div className="mt-auto flex items-center justify-between">
-                        <div>
-                          <Skeleton className="h-5 w-16 mb-1" />
-                          <Skeleton className="h-3 w-12" />
-                        </div>
-                        <Skeleton className="h-9 w-14 rounded-md" />
+                <div key={i} className="overflow-hidden rounded-lg border bg-card">
+                  <Skeleton className="aspect-square w-full" />
+                  <div className="p-4 flex flex-col min-h-[198px]">
+                    <Skeleton className="mb-2 h-5 w-16 rounded-full" />
+                    <Skeleton className="mb-1 h-5 w-3/4" />
+                    <Skeleton className="mb-0.5 h-4 w-full" />
+                    <Skeleton className="mb-2 h-4 w-2/3" />
+                    <Skeleton className="mb-2 h-4 w-1/2" />
+                    <div className="mt-auto flex items-center justify-between">
+                      <div>
+                        <Skeleton className="h-5 w-16 mb-1" />
+                        <Skeleton className="h-3 w-12" />
                       </div>
+                      <Skeleton className="h-9 w-14 rounded-md" />
                     </div>
                   </div>
-                ))
+                </div>
+              ))
               : hotProducts.map(p => (
-                  <ProductCard
-                    key={p.id}
-                    product={p}
-                    onAddToCart={(id) => handleAddToCart(id, p.name)}
-                  />
-                ))
+                <ProductCard
+                  key={p.id}
+                  product={p}
+                  onAddToCart={(id) => handleAddToCart(id, p.name)}
+                />
+              ))
             }
           </div>
           <Separator className="mt-8" />
