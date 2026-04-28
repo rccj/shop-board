@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Search } from 'lucide-react'
 import { Category, ProductQueryParams } from '@/types/product'
 import {
@@ -45,6 +46,10 @@ export function ProductFilters({
   onReset,
 }: Props) {
   const activeCount = [categoryId, priceMin, priceMax, stockStatus, status].filter(v => v !== undefined).length
+  const [inputValue, setInputValue] = useState(search)
+
+  // sync when parent resets search (e.g. onReset)
+  useEffect(() => { setInputValue(search) }, [search])
 
   return (
     <div className="rounded-lg border p-4 space-y-3">
@@ -54,8 +59,11 @@ export function ProductFilters({
         <Input
           placeholder="搜尋商品名稱…"
           className="pl-9"
-          value={search}
-          onChange={e => { if (!(e.nativeEvent as InputEvent).isComposing) onSearchChange(e.target.value) }}
+          value={inputValue}
+          onChange={e => {
+            setInputValue(e.target.value)
+            if (!(e.nativeEvent as InputEvent).isComposing) onSearchChange(e.target.value)
+          }}
           onCompositionEnd={e => onSearchChange((e.target as HTMLInputElement).value)}
         />
       </div>

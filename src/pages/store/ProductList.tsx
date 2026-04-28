@@ -35,6 +35,7 @@ export default function ProductList() {
   const [hotLoading, setHotLoading] = useState(true)
   const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
+  const [inputValue, setInputValue] = useState('')
   const [search, setSearch] = useState('')
   const [debouncedSearch] = useDebounce(search.trim(), 300)
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>()
@@ -195,8 +196,11 @@ export default function ProductList() {
                 <Input
                   placeholder="搜尋商品…"
                   className="pl-9"
-                  value={search}
-                  onChange={e => { if (!(e.nativeEvent as InputEvent).isComposing) setSearch(e.target.value) }}
+                  value={inputValue}
+                  onChange={e => {
+                    setInputValue(e.target.value)
+                    if (!(e.nativeEvent as InputEvent).isComposing) setSearch(e.target.value)
+                  }}
                   onCompositionEnd={e => setSearch((e.target as HTMLInputElement).value)}
                 />
               </div>
@@ -248,7 +252,7 @@ export default function ProductList() {
           ) : products.length === 0 ? (
             <div className="flex h-40 flex-col items-center justify-center gap-2 rounded-lg border border-dashed">
               <p className="text-muted-foreground">沒有找到商品</p>
-              <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setSelectedCategory(undefined) }}>
+              <Button variant="ghost" size="sm" onClick={() => { setInputValue(''); setSearch(''); setSelectedCategory(undefined) }}>
                 清除篩選
               </Button>
             </div>
