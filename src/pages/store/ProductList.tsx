@@ -79,7 +79,7 @@ export default function ProductList() {
         const res = await getProducts({
           page: 1,
           pageSize: 50,
-          search: debouncedSearch || undefined,
+          search: debouncedSearch.trim() || undefined,
           categoryId: selectedCategory,
           status: 'active',
           ...sortMap[sort],

@@ -37,7 +37,7 @@ export function useProducts() {
       const params: ProductQueryParams = {
         page,
         pageSize,
-        search: debouncedSearch || undefined,
+        search: debouncedSearch.trim() || undefined,
         categoryId,
         priceMin,
         priceMax,
