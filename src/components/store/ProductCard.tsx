@@ -49,11 +49,11 @@ export function ProductCard({ product, onAddToCart }: Props) {
           {discountHint && <><Tag className="h-3 w-3" />{discountHint.split('，')[0]}</>}
         </p>
         <div className="mt-auto flex items-center justify-between gap-2">
-          <div>
-            <div className="text-base font-bold leading-tight">NT${product.price.toLocaleString()}</div>
+          <div className="min-w-0">
+            <div className="truncate text-base font-bold leading-tight">NT${product.price.toLocaleString()}</div>
             <div className="min-h-[1rem]">
               {product.compareAtPrice && (
-                <span className="text-xs text-muted-foreground line-through">
+                <span className="truncate text-xs text-muted-foreground line-through">
                   NT${product.compareAtPrice.toLocaleString()}
                 </span>
               )}
