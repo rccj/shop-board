@@ -185,11 +185,6 @@ export default function ProductList() {
                 {selectedCategory ? categories.find(c => c.id === selectedCategory)?.name : '所有商品'}
               </h2>
               <span className="text-sm text-muted-foreground">共 {total} 件</span>
-              {selectedCategory && (
-                <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => setSelectedCategory(undefined)}>
-                  清除
-                </Button>
-              )}
             </div>
             <div className="flex gap-2">
               <div className="relative flex-1 sm:w-56">
