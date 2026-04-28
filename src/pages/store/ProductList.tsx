@@ -24,7 +24,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useDebounce } from 'use-debounce'
-import { FULL_AMOUNT_HINT } from '@/lib/discountHints'
 
 initStorage()
 
@@ -118,7 +117,7 @@ export default function ProductList() {
 
   // F2: load all active products once to determine which categories have stock
   useEffect(() => {
-    getProducts({ page: 1, pageSize: 500, status: 'active' })
+    getProducts({ page: 1, pageSize: 500 as 50, status: 'active' })
       .then(res => setActiveCategoryIds(new Set(res.data.map(p => p.category.id))))
       .catch(() => { })
       .finally(() => setActiveCatsLoaded(true))

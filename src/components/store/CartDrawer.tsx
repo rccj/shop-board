@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Minus, Plus, Trash2, Tag, ChevronDown, InfoIcon } from 'lucide-react'
+import { ShoppingCart, Minus, Plus, Trash2, Tag, ChevronDown } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
 import { useCartStore } from '@/store/cartStore'
 import { getCartProducts } from '@/api/cart'

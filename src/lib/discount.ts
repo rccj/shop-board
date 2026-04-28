@@ -72,6 +72,7 @@ class CategoryStrategy implements DiscountStrategy {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class SecondItemHalfPriceStrategy implements DiscountStrategy {
   name = 'second_item_half'
   calculate(item: CartItemWithProduct, _context: DiscountContext): DiscountResult | null {
