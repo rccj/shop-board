@@ -193,7 +193,7 @@ export default function ProductList() {
             <h2 className="text-xl font-bold">熱銷商品</h2>
             {!hotLoading && (
               <Button variant="ghost" size="sm" onClick={() => {
-                handleSortChange('sales_desc')
+                updateParams({ sort: 'sales_desc', cat: '' })
                 productListRef.current?.scrollIntoView({ behavior: 'smooth' })
               }}>
                 查看更多 <ArrowRight className="ml-1 h-4 w-4" />
