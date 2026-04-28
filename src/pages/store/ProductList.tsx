@@ -36,7 +36,7 @@ export default function ProductList() {
   const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [search, setSearch] = useState('')
-  const [debouncedSearch] = useDebounce(search, 300)
+  const [debouncedSearch] = useDebounce(search.trim(), 300)
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>()
   const [sort, setSort] = useState<SortOption>('default')
   const productListRef = useRef<HTMLElement>(null)
@@ -79,7 +79,7 @@ export default function ProductList() {
         const res = await getProducts({
           page: 1,
           pageSize: 50,
-          search: debouncedSearch.trim() || undefined,
+          search: debouncedSearch || undefined,
           categoryId: selectedCategory,
           status: 'active',
           ...sortMap[sort],

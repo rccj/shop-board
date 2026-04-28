@@ -19,7 +19,7 @@ export function useProducts() {
   const [error, setError] = useState<string | null>(null)
 
   const [search, setSearch] = useState('')
-  const [debouncedSearch] = useDebounce(search, 300)
+  const [debouncedSearch] = useDebounce(search.trim(), 300)
   const [categoryId, setCategoryId] = useState<number | undefined>()
   const [priceMin, setPriceMin] = useState<number | undefined>()
   const [priceMax, setPriceMax] = useState<number | undefined>()
@@ -37,7 +37,7 @@ export function useProducts() {
       const params: ProductQueryParams = {
         page,
         pageSize,
-        search: debouncedSearch.trim() || undefined,
+        search: debouncedSearch || undefined,
         categoryId,
         priceMin,
         priceMax,
