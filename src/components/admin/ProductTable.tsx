@@ -1,6 +1,7 @@
 import { ArrowUp, ArrowDown, ArrowUpDown, Pencil, Trash2, AlertTriangle } from 'lucide-react'
 import { Product, ProductQueryParams } from '@/types/product'
 import { getCategoryColor } from '@/lib/categoryColors'
+import { ConfirmPopover } from '@/components/ui/confirm-popover'
 import {
   Table,
   TableBody,
@@ -186,18 +187,23 @@ export function ProductTable({
               </TableCell>
               <TableCell>{product.sales.toLocaleString()}</TableCell>
               <TableCell>
-                <button
-                  onClick={() => onToggleStatus(product)}
-                  className="group"
-                  title={product.status === 'active' ? '點擊下架' : '點擊上架'}
-                >
-                  <Badge
-                    variant={product.status === 'active' ? 'success' : 'secondary'}
-                    className="cursor-pointer transition-opacity group-hover:opacity-70"
-                  >
-                    {product.status === 'active' ? '上架' : '下架'}
-                  </Badge>
-                </button>
+                <ConfirmPopover
+                  trigger={
+                    <button className="group" title={product.status === 'active' ? '點擊下架' : '點擊上架'}>
+                      <Badge
+                        variant={product.status === 'active' ? 'success' : 'secondary'}
+                        className="cursor-pointer transition-opacity group-hover:opacity-70"
+                      >
+                        {product.status === 'active' ? '上架' : '下架'}
+                      </Badge>
+                    </button>
+                  }
+                  message={product.status === 'active' ? `確定下架「${product.name}」？` : `確定上架「${product.name}」？`}
+                  confirmVariant={product.status === 'active' ? 'destructive' : 'default'}
+                  confirmLabel={product.status === 'active' ? '下架' : '上架'}
+                  side="top"
+                  onConfirm={() => onToggleStatus(product)}
+                />
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-1">

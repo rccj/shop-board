@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Search } from 'lucide-react'
+import { useDebounce } from 'use-debounce'
 import { useImeInput } from '@/hooks/useImeInput'
 import { Category, ProductQueryParams } from '@/types/product'
 import {
@@ -46,11 +47,39 @@ export function ProductFilters({
   onStatusChange,
   onReset,
 }: Props) {
-  const activeCount = [categoryId, priceMin, priceMax, stockStatus, status].filter(v => v !== undefined).length
+  // local price state for debounce — sync from parent on reset
+  const [localPriceMin, setLocalPriceMin] = useState(priceMin !== undefined ? String(priceMin) : '')
+  const [localPriceMax, setLocalPriceMax] = useState(priceMax !== undefined ? String(priceMax) : '')
+  const [debouncedPriceMin] = useDebounce(localPriceMin, 500)
+  const [debouncedPriceMax] = useDebounce(localPriceMax, 500)
+
   const imeSearch = useImeInput(onSearchChange)
 
-  // sync when parent resets search (e.g. onReset)
+  // sync search when parent resets
   useEffect(() => { imeSearch.setValue(search) }, [search, imeSearch.setValue])
+
+  // sync price inputs when parent resets
+  useEffect(() => {
+    setLocalPriceMin(priceMin !== undefined ? String(priceMin) : '')
+  }, [priceMin])
+  useEffect(() => {
+    setLocalPriceMax(priceMax !== undefined ? String(priceMax) : '')
+  }, [priceMax])
+
+  // notify parent after debounce
+  useEffect(() => {
+    const v = Number(debouncedPriceMin)
+    onPriceMinChange(debouncedPriceMin !== '' && v >= 0 ? v : undefined)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedPriceMin])
+  useEffect(() => {
+    const v = Number(debouncedPriceMax)
+    onPriceMaxChange(debouncedPriceMax !== '' && v >= 0 ? v : undefined)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedPriceMax])
+
+  const activeCount = [search || undefined, categoryId, priceMin, priceMax, stockStatus, status]
+    .filter(v => v !== undefined).length
 
   return (
     <div className="rounded-lg border p-4 space-y-3">
@@ -135,11 +164,8 @@ export function ProductFilters({
             placeholder="0"
             className="w-28"
             min={0}
-            value={priceMin ?? ''}
-            onChange={e => {
-              const v = Number(e.target.value)
-              onPriceMinChange(e.target.value && v >= 0 ? v : undefined)
-            }}
+            value={localPriceMin}
+            onChange={e => setLocalPriceMin(e.target.value)}
           />
         </div>
 
@@ -150,16 +176,19 @@ export function ProductFilters({
             placeholder="不限"
             className="w-28"
             min={0}
-            value={priceMax ?? ''}
-            onChange={e => {
-              const v = Number(e.target.value)
-              onPriceMaxChange(e.target.value && v >= 0 ? v : undefined)
-            }}
+            value={localPriceMax}
+            onChange={e => setLocalPriceMax(e.target.value)}
           />
         </div>
 
         <div className="flex items-end">
-          <Button variant="ghost" size="sm" onClick={onReset} className="gap-1.5">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onReset}
+            disabled={activeCount === 0}
+            className="gap-1.5"
+          >
             重置篩選
             {activeCount > 0 && (
               <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">

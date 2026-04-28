@@ -13,11 +13,6 @@ import {
   DrawerTitle,
   DrawerClose,
 } from '@/components/ui/drawer'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -25,34 +20,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-
-function ConfirmPopover({
-  trigger,
-  message,
-  onConfirm,
-}: {
-  trigger: React.ReactNode
-  message: string
-  onConfirm: () => void
-}) {
-  const [open, setOpen] = useState(false)
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
-      <PopoverContent className="w-auto p-3" side="left" align="center">
-        <p className="mb-3 text-sm font-medium">{message}</p>
-        <div className="flex justify-end gap-2">
-          <Button size="sm" variant="outline" className="h-7 px-3 text-xs" onClick={() => setOpen(false)}>
-            取消
-          </Button>
-          <Button size="sm" variant="destructive" className="h-7 px-3 text-xs" onClick={() => { onConfirm(); setOpen(false) }}>
-            確定
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
-  )
-}
+import { ConfirmPopover } from '@/components/ui/confirm-popover'
 
 export function CartDrawer() {
   const { items, result, addItem, removeItem, updateQuantity, clearCart, calculate } = useCart()

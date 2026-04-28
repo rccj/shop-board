@@ -54,6 +54,8 @@ export default function AdminProducts() {
   const [editTarget, setEditTarget] = useState<Product | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null)
   const [batchDeleteOpen, setBatchDeleteOpen] = useState(false)
+  const [batchActivateOpen, setBatchActivateOpen] = useState(false)
+  const [batchDeactivateOpen, setBatchDeactivateOpen] = useState(false)
   const [addOpen, setAddOpen] = useState(false)
   const [bulkImportOpen, setBulkImportOpen] = useState(false)
 
@@ -71,7 +73,7 @@ export default function AdminProducts() {
     if (!deleteTarget) return
     try {
       await handleDelete(deleteTarget.id)
-      toast.success('已刪除', { description: deleteTarget.name })
+      toast.warning('已刪除', { description: deleteTarget.name })
     } catch {
       toast.error('刪除失敗，請稍後再試')
     }
@@ -79,19 +81,38 @@ export default function AdminProducts() {
     setDeleteTarget(null)
   }
 
-  const handleBatchAction = async (action: 'activate' | 'deactivate' | 'delete') => {
-    if (action === 'delete') {
-      setBatchDeleteOpen(true)
-      return
+  const handleBatchAction = (action: 'activate' | 'deactivate' | 'delete') => {
+    if (action === 'delete') { setBatchDeleteOpen(true); return }
+    if (action === 'activate') { setBatchActivateOpen(true); return }
+    if (action === 'deactivate') { setBatchDeactivateOpen(true); return }
+  }
+
+  const handleConfirmBatchActivate = async () => {
+    try {
+      await handleBatch({ ids: selectedIds, action: 'activate' })
+      toast.success(`已上架 ${selectedIds.length} 筆商品`)
+    } catch {
+      toast.error('操作失敗，請稍後再試')
     }
-    await handleBatch({ ids: selectedIds, action })
     clearSelection()
+    setBatchActivateOpen(false)
+  }
+
+  const handleConfirmBatchDeactivate = async () => {
+    try {
+      await handleBatch({ ids: selectedIds, action: 'deactivate' })
+      toast.warning(`已下架 ${selectedIds.length} 筆商品`)
+    } catch {
+      toast.error('操作失敗，請稍後再試')
+    }
+    clearSelection()
+    setBatchDeactivateOpen(false)
   }
 
   const handleConfirmBatchDelete = async () => {
     try {
       await handleBatch({ ids: selectedIds, action: 'delete' })
-      toast.success(`已刪除 ${selectedIds.length} 筆商品`)
+      toast.warning(`已刪除 ${selectedIds.length} 筆商品`)
     } catch {
       toast.error('刪除失敗，請稍後再試')
     }
@@ -167,7 +188,9 @@ export default function AdminProducts() {
           const newStatus = p.status === 'active' ? 'inactive' : 'active'
           try {
             await handleUpdate(p.id, { status: newStatus })
-            toast.success(newStatus === 'active' ? '已上架' : '已下架', { description: p.name })
+            newStatus === 'active'
+              ? toast.success('已上架', { description: p.name })
+              : toast.warning('已下架', { description: p.name })
           } catch {
             toast.error('操作失敗')
           }
@@ -245,6 +268,41 @@ export default function AdminProducts() {
         onOpenChange={open => !open && setDeleteTarget(null)}
         onConfirm={handleConfirmDelete}
       />
+
+      <AlertDialog open={batchActivateOpen} onOpenChange={setBatchActivateOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>確認批次上架</AlertDialogTitle>
+            <AlertDialogDescription>
+              即將上架 <span className="font-semibold text-foreground">{selectedIds.length}</span> 筆商品。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmBatchActivate}>確認上架</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={batchDeactivateOpen} onOpenChange={setBatchDeactivateOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>確認批次下架</AlertDialogTitle>
+            <AlertDialogDescription>
+              即將下架 <span className="font-semibold text-foreground">{selectedIds.length}</span> 筆商品，下架後前台將不顯示。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleConfirmBatchDeactivate}
+            >
+              確認下架
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={batchDeleteOpen} onOpenChange={setBatchDeleteOpen}>
         <AlertDialogContent>
