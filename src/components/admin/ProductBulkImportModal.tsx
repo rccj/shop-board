@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { Upload, Download, CheckCircle2, XCircle, Loader2 } from 'lucide-react'
+import { Upload, Download, CheckCircle2, XCircle, Loader2, ChevronDown } from 'lucide-react'
 import { Category, Product } from '@/types/product'
 import {
   Dialog,
@@ -116,6 +116,15 @@ export function ProductBulkImportModal({ open, onOpenChange, categories, onImpor
   const [importing, setImporting] = useState(false)
   const [result, setResult] = useState<ImportResult | null>(null)
   const [overLimitCount, setOverLimitCount] = useState<number | null>(null)
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set())
+
+  const toggleRowExpand = (index: number) => {
+    setExpandedRows(prev => {
+      const next = new Set(prev)
+      next.has(index) ? next.delete(index) : next.add(index)
+      return next
+    })
+  }
 
   useEffect(() => {
     if (!importing) return
@@ -145,6 +154,7 @@ export function ProductBulkImportModal({ open, onOpenChange, categories, onImpor
         setRows(parsed)
       }
       setResult(null)
+      setExpandedRows(new Set())
     }
     reader.readAsText(file, 'UTF-8')
     e.target.value = ''
@@ -296,7 +306,7 @@ export function ProductBulkImportModal({ open, onOpenChange, categories, onImpor
                     <th className="py-2 pr-3">分類</th>
                     <th className="py-2 pr-3">庫存</th>
                     <th className="py-2 pr-3">狀態</th>
-                    <th className="py-2">檢查</th>
+                    <th className="py-2 w-32">檢查</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -318,10 +328,22 @@ export function ProductBulkImportModal({ open, onOpenChange, categories, onImpor
                         {row.errors.length === 0
                           ? <CheckCircle2 className="h-4 w-4 text-green-600" />
                           : (
-                            <div className="space-y-0.5">
-                              {row.errors.map((e, i) => (
-                                <p key={i} className="text-xs text-destructive">{e}</p>
-                              ))}
+                            <div>
+                              <button
+                                className="flex items-center gap-1 text-xs text-destructive hover:underline"
+                                onClick={() => toggleRowExpand(row.index)}
+                              >
+                                <XCircle className="h-3.5 w-3.5 shrink-0" />
+                                {row.errors.length} 個錯誤
+                                <ChevronDown className={`h-3 w-3 transition-transform duration-150 ${expandedRows.has(row.index) ? 'rotate-180' : ''}`} />
+                              </button>
+                              {expandedRows.has(row.index) && (
+                                <div className="mt-1 space-y-0.5 pl-1 border-l-2 border-destructive/30 max-w-[180px]">
+                                  {row.errors.map((e, i) => (
+                                    <p key={i} className="text-xs text-destructive break-words">· {e}</p>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           )}
                       </td>
