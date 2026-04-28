@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Search } from 'lucide-react'
+import { useImeInput } from '@/hooks/useImeInput'
 import { Category, ProductQueryParams } from '@/types/product'
 import {
   Select,
@@ -46,10 +47,10 @@ export function ProductFilters({
   onReset,
 }: Props) {
   const activeCount = [categoryId, priceMin, priceMax, stockStatus, status].filter(v => v !== undefined).length
-  const [inputValue, setInputValue] = useState(search)
+  const imeSearch = useImeInput(onSearchChange)
 
   // sync when parent resets search (e.g. onReset)
-  useEffect(() => { setInputValue(search) }, [search])
+  useEffect(() => { imeSearch.setValue(search) }, [search, imeSearch.setValue])
 
   return (
     <div className="rounded-lg border p-4 space-y-3">
@@ -59,12 +60,9 @@ export function ProductFilters({
         <Input
           placeholder="搜尋商品名稱…"
           className="pl-9"
-          value={inputValue}
-          onChange={e => {
-            setInputValue(e.target.value)
-            if (!(e.nativeEvent as InputEvent).isComposing) onSearchChange(e.target.value)
-          }}
-          onCompositionEnd={e => onSearchChange((e.target as HTMLInputElement).value)}
+          value={imeSearch.value}
+          onChange={imeSearch.onChange}
+          onCompositionEnd={imeSearch.onCompositionEnd}
         />
       </div>
 

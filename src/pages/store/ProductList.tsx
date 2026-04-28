@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useImeInput } from '@/hooks/useImeInput'
 import { Link } from 'react-router-dom'
 import { Search, ArrowRight, Tag } from 'lucide-react'
 import { toast } from 'sonner'
@@ -35,9 +36,9 @@ export default function ProductList() {
   const [hotLoading, setHotLoading] = useState(true)
   const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
-  const [inputValue, setInputValue] = useState('')
   const [search, setSearch] = useState('')
   const [debouncedSearch] = useDebounce(search.trim(), 300)
+  const imeSearch = useImeInput(setSearch)
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>()
   const [sort, setSort] = useState<SortOption>('default')
   const productListRef = useRef<HTMLElement>(null)
@@ -196,12 +197,9 @@ export default function ProductList() {
                 <Input
                   placeholder="搜尋商品…"
                   className="pl-9"
-                  value={inputValue}
-                  onChange={e => {
-                    setInputValue(e.target.value)
-                    if (!(e.nativeEvent as InputEvent).isComposing) setSearch(e.target.value)
-                  }}
-                  onCompositionEnd={e => setSearch((e.target as HTMLInputElement).value)}
+                  value={imeSearch.value}
+                  onChange={imeSearch.onChange}
+                  onCompositionEnd={imeSearch.onCompositionEnd}
                 />
               </div>
               <Select value={sort} onValueChange={v => setSort(v as SortOption)}>
@@ -252,7 +250,7 @@ export default function ProductList() {
           ) : products.length === 0 ? (
             <div className="flex h-40 flex-col items-center justify-center gap-2 rounded-lg border border-dashed">
               <p className="text-muted-foreground">沒有找到商品</p>
-              <Button variant="ghost" size="sm" onClick={() => { setInputValue(''); setSearch(''); setSelectedCategory(undefined) }}>
+              <Button variant="ghost" size="sm" onClick={() => { imeSearch.reset(); setSearch(''); setSelectedCategory(undefined) }}>
                 清除篩選
               </Button>
             </div>
