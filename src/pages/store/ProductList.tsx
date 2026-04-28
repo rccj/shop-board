@@ -68,6 +68,10 @@ export default function ProductList() {
     }, { replace: true })
   }, [setSearchParams])
 
+  const scrollToProducts = useCallback(() => {
+    productListRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [])
+
   // sync IME display value on first mount (in case URL has ?q=...)
   useEffect(() => {
     imeSearch.setValue(search)
@@ -174,15 +178,25 @@ export default function ProductList() {
             <h2 className="mb-2 text-3xl font-bold">滿 NT$10,000 享 9 折</h2>
             <p className="mb-4 text-slate-300">不限金額，全站免運費</p>
             <div className="flex flex-wrap gap-3 text-sm">
-              <span className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1">
-                <Tag className="h-3 w-3" /> 3C 買 2 件 85 折
-              </span>
-              <span className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1">
-                <Tag className="h-3 w-3" /> 服飾 買 3 件 8 折
-              </span>
-              <span className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1">
-                <Tag className="h-3 w-3" /> 書籍 買 5 件 7 折
-              </span>
+              {[
+                { label: '3C 買 2 件 85 折', name: '3C電子' },
+                { label: '服飾 買 3 件 8 折', name: '服飾配件' },
+                { label: '書籍 買 5 件 7 折', name: '書籍文具' },
+              ].map(({ label, name }) => {
+                const cat = categories.find(c => c.name === name)
+                return (
+                  <button
+                    key={name}
+                    onClick={() => {
+                      if (cat) updateParams({ cat: String(cat.id), sort: '' })
+                      scrollToProducts()
+                    }}
+                    className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 transition-colors hover:bg-white/20 cursor-pointer"
+                  >
+                    <Tag className="h-3 w-3" /> {label}
+                  </button>
+                )
+              })}
             </div>
           </div>
         </section>
@@ -194,7 +208,7 @@ export default function ProductList() {
             {!hotLoading && (
               <Button variant="ghost" size="sm" onClick={() => {
                 updateParams({ sort: 'sales_desc', cat: '' })
-                productListRef.current?.scrollIntoView({ behavior: 'smooth' })
+                scrollToProducts()
               }}>
                 查看更多 <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
