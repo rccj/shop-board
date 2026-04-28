@@ -52,6 +52,7 @@ export default function ProductList() {
   const [isLoading, setIsLoading] = useState(false)
   // F2: category IDs that have at least 1 active product
   const [activeCategoryIds, setActiveCategoryIds] = useState<Set<number>>(new Set())
+  const [activeCatsLoaded, setActiveCatsLoaded] = useState(false)
 
   const productListRef = useRef<HTMLElement>(null)
   const { addItem, setCartOpen } = useCartStore()
@@ -120,6 +121,7 @@ export default function ProductList() {
     getProducts({ page: 1, pageSize: 500, status: 'active' })
       .then(res => setActiveCategoryIds(new Set(res.data.map(p => p.category.id))))
       .catch(() => { })
+      .finally(() => setActiveCatsLoaded(true))
   }, [])
 
   // main product list
@@ -178,25 +180,31 @@ export default function ProductList() {
             <h2 className="mb-2 text-3xl font-bold">滿 NT$10,000 享 9 折</h2>
             <p className="mb-4 text-slate-300">不限金額，全站免運費</p>
             <div className="flex flex-wrap gap-3 text-sm">
-              {[
-                { label: '3C 買 2 件 85 折', name: '3C電子' },
-                { label: '服飾 買 3 件 8 折', name: '服飾配件' },
-                { label: '書籍 買 5 件 7 折', name: '書籍文具' },
-              ].map(({ label, name }) => {
-                const cat = categories.find(c => c.name === name)
-                return (
-                  <button
-                    key={name}
-                    onClick={() => {
-                      if (cat) updateParams({ cat: String(cat.id), sort: '' })
-                      scrollToProducts()
-                    }}
-                    className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 transition-colors hover:bg-white/20 cursor-pointer"
-                  >
-                    <Tag className="h-3 w-3" /> {label}
-                  </button>
-                )
-              })}
+              {!activeCatsLoaded
+                ? Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="h-7 w-28 rounded-full bg-white/10 animate-pulse" />
+                ))
+                : [
+                  { label: '3C 買 2 件 85 折', name: '3C電子' },
+                  { label: '服飾 買 3 件 8 折', name: '服飾配件' },
+                  { label: '書籍 買 5 件 7 折', name: '書籍文具' },
+                ].flatMap(({ label, name }) => {
+                  const cat = categories.find(c => c.name === name)
+                  if (!cat || !activeCategoryIds.has(cat.id)) return []
+                  return (
+                    <button
+                      key={name}
+                      onClick={() => {
+                        updateParams({ cat: String(cat.id), sort: '' })
+                        scrollToProducts()
+                      }}
+                      className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 transition-colors hover:bg-white/20 cursor-pointer"
+                    >
+                      <Tag className="h-3 w-3" /> {label}
+                    </button>
+                  )
+                })
+              }
             </div>
           </div>
         </section>
