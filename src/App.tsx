@@ -1,5 +1,6 @@
 import { HashRouter, Routes, Route, Navigate, Link } from 'react-router-dom'
 import { Toaster } from 'sonner'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import ProductList from '@/pages/store/ProductList'
 import ProductDetail from '@/pages/store/ProductDetail'
 import Cart from '@/pages/store/Cart'
@@ -24,6 +25,7 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
+    <TooltipProvider>
     <HashRouter>
       <Toaster richColors position="top-center" />
       <Routes>
@@ -43,5 +45,6 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>
+    </TooltipProvider>
   )
 }
