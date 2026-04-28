@@ -23,7 +23,6 @@ import { Separator } from '@/components/ui/separator'
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
@@ -86,7 +85,6 @@ export function CartDrawer() {
   })
 
   return (
-    <TooltipProvider>
     <Drawer direction="right">
       <DrawerTrigger asChild>
         <Button ref={triggerRef} variant="outline" size="sm" className="relative">
@@ -131,7 +129,7 @@ export function CartDrawer() {
           <div className="flex flex-1 flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto divide-y">
               {cartWithDetails.map(({ item, product, detail }) => (
-                <div key={item.productId} className="flex items-center gap-3 p-3">
+                <div key={item.productId} className="flex items-start gap-3 p-3">
                   <DrawerClose asChild>
                     <Link to={`/products/${product.id}`} className="shrink-0">
                       <img
@@ -141,58 +139,64 @@ export function CartDrawer() {
                       />
                     </Link>
                   </DrawerClose>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium line-clamp-1">{product.name}</p>
-                    <p className="text-xs text-muted-foreground">NT${product.price.toLocaleString()}</p>
+                  {/* info + qty controls */}
+                  <div className="flex-1 min-w-0 overflow-hidden space-y-1.5">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <p className="text-sm font-medium line-clamp-2 cursor-default">{product.name}</p>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[200px]">{product.name}</TooltipContent>
+                    </Tooltip>
                     {detail && detail.discountType !== 'none' && (
                       <span className="flex items-center gap-1 text-xs text-green-600">
                         <Tag className="h-3 w-3" />
-                        {detail.discountType === 'full_amount' ? '滿額9折' : detail.discountType === 'second_item_half' ? '第二件半價' : `分類${Math.round(detail.discountRate * 10)}折`}
+                        {detail.discountType === 'full_amount' ? '滿額9折' : detail.discountType === 'second_item_half' ? '第二件半價' : `分類${(Number.isInteger(detail.discountRate * 10) ? detail.discountRate * 10 : Math.round(detail.discountRate * 100))}折`}
                       </span>
                     )}
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    {item.quantity === 1 ? (
-                      <ConfirmPopover
-                        trigger={
-                          <Button size="icon" variant="outline" className="h-6 w-6" data-testid="cart-minus">
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                        }
-                        message="確定移除此商品？"
-                        onConfirm={() => removeItem(item.productId)}
-                      />
-                    ) : (
-                      <Button size="icon" variant="outline" className="h-6 w-6" data-testid="cart-minus"
-                        onClick={() => updateQuantity(item.productId, item.quantity - 1)}>
-                        <Minus className="h-3 w-3" />
+                    <div className="flex items-center gap-1">
+                      {item.quantity === 1 ? (
+                        <ConfirmPopover
+                          trigger={
+                            <Button size="icon" variant="outline" className="h-6 w-6" data-testid="cart-minus">
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                          }
+                          message="確定移除此商品？"
+                          onConfirm={() => removeItem(item.productId)}
+                        />
+                      ) : (
+                        <Button size="icon" variant="outline" className="h-6 w-6" data-testid="cart-minus"
+                          onClick={() => updateQuantity(item.productId, item.quantity - 1)}>
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                      )}
+                      <span className="w-6 text-center text-sm">{item.quantity}</span>
+                      <Button size="icon" variant="outline" className="h-6 w-6" data-testid="cart-plus"
+                        onClick={() => addItem(item.productId)}>
+                        <Plus className="h-3 w-3" />
                       </Button>
-                    )}
-                    <span className="w-6 text-center text-sm">{item.quantity}</span>
-                    <Button size="icon" variant="outline" className="h-6 w-6" data-testid="cart-plus"
-                      onClick={() => addItem(item.productId)}>
-                      <Plus className="h-3 w-3" />
-                    </Button>
+                    </div>
                   </div>
-                  <div className="w-16 text-right shrink-0">
+                  {/* price + trash */}
+                  <div className="flex flex-col items-end justify-between self-stretch shrink-0 w-[5.5rem] overflow-hidden">
                     {detail && detail.discountType !== 'none' ? (
-                      <div>
-                        <p className="text-xs font-medium text-green-600">NT${detail.finalSubtotal.toLocaleString()}</p>
-                        <p className="text-[10px] text-muted-foreground line-through">NT${detail.originalSubtotal.toLocaleString()}</p>
+                      <div className="text-right">
+                        <p className="truncate text-xs font-medium text-green-600 tabular-nums">NT${detail.finalSubtotal.toLocaleString()}</p>
+                        <p className="truncate text-[10px] text-muted-foreground line-through tabular-nums">NT${detail.originalSubtotal.toLocaleString()}</p>
                       </div>
                     ) : (
-                      <p className="text-xs font-medium">NT${(product.price * item.quantity).toLocaleString()}</p>
+                      <p className="truncate text-xs font-medium tabular-nums">NT${(product.price * item.quantity).toLocaleString()}</p>
                     )}
+                    <ConfirmPopover
+                      trigger={
+                        <Button size="icon" variant="ghost" className="h-6 w-6 text-muted-foreground hover:text-destructive" data-testid="cart-trash">
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      }
+                      message="確定移除此商品？"
+                      onConfirm={() => removeItem(item.productId)}
+                    />
                   </div>
-                  <ConfirmPopover
-                    trigger={
-                      <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0 text-muted-foreground hover:text-destructive" data-testid="cart-trash">
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    }
-                    message="確定移除此商品？"
-                    onConfirm={() => removeItem(item.productId)}
-                  />
                 </div>
               ))}
             </div>
@@ -231,8 +235,8 @@ export function CartDrawer() {
               {result && (
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between text-muted-foreground">
-                    <span>小計</span>
-                    <span>NT${result.originalTotal.toLocaleString()}</span>
+                    <span className="shrink-0">小計</span>
+                    <span className="min-w-0 truncate text-right tabular-nums ml-2">NT${result.originalTotal.toLocaleString()}</span>
                   </div>
                   {result.totalSaved > 0 && (
                     <div>
@@ -240,11 +244,11 @@ export function CartDrawer() {
                         className="flex w-full items-center justify-between text-green-600 text-xs py-0.5"
                         onClick={() => setDiscountExpanded(e => !e)}
                       >
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1 shrink-0">
                           折扣優惠
                           <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${discountExpanded ? 'rotate-180' : ''}`} />
                         </span>
-                        <span>-NT${result.totalSaved.toLocaleString()}</span>
+                        <span className="min-w-0 truncate text-right tabular-nums ml-2">-NT${result.totalSaved.toLocaleString()}</span>
                       </button>
                       {discountExpanded && (
                         <div className="mt-1 space-y-0.5 pl-2 border-l-2 border-green-100">
@@ -255,7 +259,7 @@ export function CartDrawer() {
                                 <span className="truncate mr-2">
                                   {product.name} ×{item.quantity}
                                   <span className="text-green-600 ml-1">
-                                    ({detail!.discountType === 'full_amount' ? '滿額9折' : detail!.discountType === 'second_item_half' ? '第二件半價' : `分類${Math.round(detail!.discountRate * 10)}折`})
+                                    ({detail!.discountType === 'full_amount' ? '滿額9折' : detail!.discountType === 'second_item_half' ? '第二件半價' : `分類${(Number.isInteger(detail!.discountRate * 10) ? detail!.discountRate * 10 : Math.round(detail!.discountRate * 100))}折`})
                                   </span>
                                 </span>
                                 <span className="shrink-0">-NT${(detail!.originalSubtotal - detail!.finalSubtotal).toLocaleString()}</span>
@@ -267,8 +271,8 @@ export function CartDrawer() {
                     </div>
                   )}
                   <div className="flex justify-between font-semibold">
-                    <span>應付金額</span>
-                    <span>NT${result.finalTotal.toLocaleString()}</span>
+                    <span className="shrink-0">應付金額</span>
+                    <span className="min-w-0 truncate text-right tabular-nums ml-2">NT${result.finalTotal.toLocaleString()}</span>
                   </div>
                 </div>
               )}
@@ -283,6 +287,5 @@ export function CartDrawer() {
         )}
       </DrawerContent>
     </Drawer>
-    </TooltipProvider>
   )
 }

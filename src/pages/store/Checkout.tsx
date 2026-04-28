@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, CheckCircle2, CreditCard, MapPin, User } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useCart } from '@/hooks/useCart'
 import { useCartStore } from '@/store/cartStore'
 import { getCartProducts } from '@/api/cart'
@@ -158,17 +159,22 @@ export default function Checkout() {
                         className="h-10 w-10 rounded object-cover bg-muted shrink-0"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="line-clamp-1 font-medium leading-tight">{product.name}</p>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <p className="font-medium leading-tight line-clamp-2 cursor-default">{product.name}</p>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-[200px]">{product.name}</TooltipContent>
+                        </Tooltip>
                         <p className="text-muted-foreground">× {item.quantity}</p>
                       </div>
                       <div className="text-right shrink-0">
                         {hasDiscount ? (
                           <>
-                            <p className="font-medium text-green-600">NT${detail.finalSubtotal.toLocaleString()}</p>
-                            <p className="text-xs text-muted-foreground line-through">NT${detail.originalSubtotal.toLocaleString()}</p>
+                            <p className="font-medium text-green-600 tabular-nums">NT${detail.finalSubtotal.toLocaleString()}</p>
+                            <p className="text-xs text-muted-foreground line-through tabular-nums">NT${detail.originalSubtotal.toLocaleString()}</p>
                           </>
                         ) : (
-                          <p className="font-medium">NT${(product.price * item.quantity).toLocaleString()}</p>
+                          <p className="font-medium tabular-nums">NT${(product.price * item.quantity).toLocaleString()}</p>
                         )}
                       </div>
                     </div>
