@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Minus, Plus, Trash2, Tag, ChevronDown } from 'lucide-react'
+import { ShoppingCart, Minus, Plus, Trash2, Tag, ChevronDown, InfoIcon } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
 import { useCartStore } from '@/store/cartStore'
 import { getCartProducts } from '@/api/cart'
@@ -181,17 +181,17 @@ export function CartDrawer() {
                 return (
                   <div className="space-y-1.5">
                     <div className="flex justify-between text-xs">
-                      <span className="flex items-center gap-1 font-medium">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Tag className="h-3 w-3 text-green-600 cursor-pointer" />
-                          </TooltipTrigger>
-                          <TooltipContent side="top">
-                            優惠不疊加，每件商品自動套用最優折扣
-                          </TooltipContent>
-                        </Tooltip>
-                        {reached ? '已達滿額折扣！全單9折' : `再 NT$${(THRESHOLD - result.originalTotal).toLocaleString()} 享全單9折`}
-                      </span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="flex items-center gap-1 font-medium underline cursor-pointer">
+                            <Tag className="h-3 w-3 text-green-600" />
+                            {reached ? '已達滿額折扣！全單9折' : `再 NT$${(THRESHOLD - result.originalTotal).toLocaleString()} 享全單9折`}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          優惠不疊加，每件商品自動套用最優折扣
+                        </TooltipContent>
+                      </Tooltip>
                       <span className="text-muted-foreground">{Math.floor(pct)}%</span>
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
