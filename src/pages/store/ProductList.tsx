@@ -40,7 +40,6 @@ export default function ProductList() {
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>()
   const [sort, setSort] = useState<SortOption>('default')
   const productListRef = useRef<HTMLElement>(null)
-  const isComposing = useRef(false)
 
   const { addItem, setCartOpen } = useCartStore()
 
@@ -197,9 +196,8 @@ export default function ProductList() {
                   placeholder="搜尋商品…"
                   className="pl-9"
                   value={search}
-                  onChange={e => { if (!isComposing.current) setSearch(e.target.value) }}
-                  onCompositionStart={() => { isComposing.current = true }}
-                  onCompositionEnd={e => { isComposing.current = false; setSearch((e.target as HTMLInputElement).value) }}
+                  onChange={e => { if (!(e.nativeEvent as InputEvent).isComposing) setSearch(e.target.value) }}
+                  onCompositionEnd={e => setSearch((e.target as HTMLInputElement).value)}
                 />
               </div>
               <Select value={sort} onValueChange={v => setSort(v as SortOption)}>

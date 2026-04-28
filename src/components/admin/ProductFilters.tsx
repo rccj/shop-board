@@ -1,4 +1,3 @@
-import { useRef } from 'react'
 import { Search } from 'lucide-react'
 import { Category, ProductQueryParams } from '@/types/product'
 import {
@@ -46,7 +45,6 @@ export function ProductFilters({
   onReset,
 }: Props) {
   const activeCount = [categoryId, priceMin, priceMax, stockStatus, status].filter(v => v !== undefined).length
-  const isComposing = useRef(false)
 
   return (
     <div className="rounded-lg border p-4 space-y-3">
@@ -57,9 +55,8 @@ export function ProductFilters({
           placeholder="搜尋商品名稱…"
           className="pl-9"
           value={search}
-          onChange={e => { if (!isComposing.current) onSearchChange(e.target.value) }}
-          onCompositionStart={() => { isComposing.current = true }}
-          onCompositionEnd={e => { isComposing.current = false; onSearchChange((e.target as HTMLInputElement).value) }}
+          onChange={e => { if (!(e.nativeEvent as InputEvent).isComposing) onSearchChange(e.target.value) }}
+          onCompositionEnd={e => onSearchChange((e.target as HTMLInputElement).value)}
         />
       </div>
 
