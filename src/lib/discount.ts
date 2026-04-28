@@ -167,7 +167,7 @@ class CartCalculator {
 export const calculator = new CartCalculator([
   new FullAmountStrategy(),
   new CategoryStrategy(),
-  new SecondItemHalfPriceStrategy(),
+  // new SecondItemHalfPriceStrategy(),
 ])
 
 export const calculateCart = (
