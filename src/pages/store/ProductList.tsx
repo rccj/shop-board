@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useImeInput } from '@/hooks/useImeInput'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Search, ArrowRight, Tag } from 'lucide-react'
 import { toast } from 'sonner'
 import { Product } from '@/types/product'
@@ -31,19 +31,61 @@ initStorage()
 type SortOption = 'default' | 'price_asc' | 'price_desc' | 'sales_desc'
 
 export default function ProductList() {
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // search: local state for IME + debounce; synced to URL after debounce
+  const [search, setSearch] = useState(() => searchParams.get('q') ?? '')
+  const [debouncedSearch] = useDebounce(search.trim(), 300)
+  const imeSearch = useImeInput(setSearch)
+
+  // category + sort: directly from URL (no debounce needed)
+  const selectedCategory = (() => {
+    const c = searchParams.get('cat')
+    return c ? Number(c) : undefined
+  })()
+  const sort = (searchParams.get('sort') as SortOption) ?? 'default'
+
   const [products, setProducts] = useState<Product[]>([])
   const [hotProducts, setHotProducts] = useState<Product[]>([])
   const [hotLoading, setHotLoading] = useState(true)
   const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
-  const [search, setSearch] = useState('')
-  const [debouncedSearch] = useDebounce(search.trim(), 300)
-  const imeSearch = useImeInput(setSearch)
-  const [selectedCategory, setSelectedCategory] = useState<number | undefined>()
-  const [sort, setSort] = useState<SortOption>('default')
-  const productListRef = useRef<HTMLElement>(null)
+  // F2: category IDs that have at least 1 active product
+  const [activeCategoryIds, setActiveCategoryIds] = useState<Set<number>>(new Set())
 
+  const productListRef = useRef<HTMLElement>(null)
   const { addItem, setCartOpen } = useCartStore()
+
+  // sync URL params helper
+  const updateParams = useCallback((updates: Record<string, string>) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      for (const [k, v] of Object.entries(updates)) {
+        if (v) next.set(k, v)
+        else next.delete(k)
+      }
+      return next
+    }, { replace: true })
+  }, [setSearchParams])
+
+  // sync IME display value on first mount (in case URL has ?q=...)
+  useEffect(() => {
+    imeSearch.setValue(search)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // push debounced search to URL
+  useEffect(() => {
+    updateParams({ q: debouncedSearch })
+  }, [debouncedSearch, updateParams])
+
+  const handleCategoryChange = (id: number | undefined) => {
+    updateParams({ cat: id ? String(id) : '' })
+  }
+
+  const handleSortChange = (newSort: SortOption) => {
+    updateParams({ sort: newSort === 'default' ? '' : newSort })
+  }
 
   const handleAddToCart = (id: number, name: string) => {
     addItem(id)
@@ -61,6 +103,7 @@ export default function ProductList() {
     ))
   }
 
+  // hot products
   useEffect(() => {
     getProducts({ page: 1, pageSize: 10, sortBy: 'sales', sortOrder: 'desc', status: 'active' })
       .then(res => setHotProducts(res.data.slice(0, 6)))
@@ -68,6 +111,14 @@ export default function ProductList() {
       .finally(() => setHotLoading(false))
   }, [])
 
+  // F2: load all active products once to determine which categories have stock
+  useEffect(() => {
+    getProducts({ page: 1, pageSize: 500, status: 'active' })
+      .then(res => setActiveCategoryIds(new Set(res.data.map(p => p.category.id))))
+      .catch(() => { })
+  }, [])
+
+  // main product list
   useEffect(() => {
     const load = async () => {
       setIsLoading(true)
@@ -94,6 +145,11 @@ export default function ProductList() {
     }
     void load()
   }, [debouncedSearch, selectedCategory, sort])
+
+  // visible categories: only those with active products (hide empty)
+  const visibleCategories = activeCategoryIds.size === 0
+    ? categories // loading state: show all to avoid layout shift
+    : categories.filter(c => activeCategoryIds.has(c.id))
 
   return (
     <div className="min-h-screen bg-background">
@@ -137,7 +193,7 @@ export default function ProductList() {
             <h2 className="text-xl font-bold">熱銷商品</h2>
             {!hotLoading && (
               <Button variant="ghost" size="sm" onClick={() => {
-                setSort('sales_desc')
+                handleSortChange('sales_desc')
                 productListRef.current?.scrollIntoView({ behavior: 'smooth' })
               }}>
                 查看更多 <ArrowRight className="ml-1 h-4 w-4" />
@@ -197,7 +253,7 @@ export default function ProductList() {
                   onCompositionEnd={imeSearch.onCompositionEnd}
                 />
               </div>
-              <Select value={sort} onValueChange={v => setSort(v as SortOption)}>
+              <Select value={sort} onValueChange={v => handleSortChange(v as SortOption)}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
                 </SelectTrigger>
@@ -211,21 +267,21 @@ export default function ProductList() {
             </div>
           </div>
 
-          {/* 分類篩選 badge */}
+          {/* 分類篩選 badge — 只顯示有上架商品的分類 */}
           <div className="mb-4 flex flex-wrap gap-2">
             <Badge
               variant={selectedCategory === undefined ? 'default' : 'outline'}
               className="cursor-pointer px-3 py-1"
-              onClick={() => setSelectedCategory(undefined)}
+              onClick={() => handleCategoryChange(undefined)}
             >
               全部
             </Badge>
-            {categories.map(c => (
+            {visibleCategories.map(c => (
               <Badge
                 key={c.id}
                 variant={selectedCategory === c.id ? 'default' : 'outline'}
                 className="cursor-pointer px-3 py-1"
-                onClick={() => setSelectedCategory(c.id)}
+                onClick={() => handleCategoryChange(c.id)}
               >
                 {c.name}
               </Badge>
@@ -245,7 +301,11 @@ export default function ProductList() {
           ) : products.length === 0 ? (
             <div className="flex h-40 flex-col items-center justify-center gap-2 rounded-lg border border-dashed">
               <p className="text-muted-foreground">沒有找到商品</p>
-              <Button variant="ghost" size="sm" onClick={() => { imeSearch.reset(); setSearch(''); setSelectedCategory(undefined) }}>
+              <Button variant="ghost" size="sm" onClick={() => {
+                imeSearch.reset()
+                setSearch('')
+                setSearchParams({}, { replace: true })
+              }}>
                 清除篩選
               </Button>
             </div>
