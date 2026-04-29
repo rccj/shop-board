@@ -231,27 +231,28 @@ export function CartDrawer() {
                           <span className="min-w-0 truncate text-right tabular-nums ml-2">-NT${totalDisplaySaved.toLocaleString()}</span>
                         </button>
                         {discountExpanded && (
-                          <div className="mt-1 space-y-0.5 pl-2 border-l-2 border-green-100">
-                            {productMarkdownItems.map(({ product, item }) => (
-                              <div key={`md-${product.id}`} className="flex justify-between text-[10px] text-muted-foreground">
-                                <span className="truncate mr-2">
-                                  {product.name} ×{item.quantity}
-                                  <span className="text-green-600 ml-1">(商品折扣)</span>
-                                </span>
-                                <span className="shrink-0">-NT${((product.compareAtPrice! - product.price) * item.quantity).toLocaleString()}</span>
-                              </div>
-                            ))}
-                            {cartDiscountItems.map(({ product, item, detail }) => (
-                              <div key={`cd-${product.id}`} className="flex justify-between text-[10px] text-muted-foreground">
-                                <span className="truncate mr-2">
-                                  {product.name} ×{item.quantity}
-                                  <span className="text-green-600 ml-1">
-                                    ({detail!.discountType === 'full_amount' ? '滿額9折' : detail!.discountType === 'second_item_half' ? '第二件半價' : `分類${(Number.isInteger(detail!.discountRate * 10) ? detail!.discountRate * 10 : Math.round(detail!.discountRate * 100))}折`})
-                                  </span>
-                                </span>
-                                <span className="shrink-0">-NT${(detail!.originalSubtotal - detail!.finalSubtotal).toLocaleString()}</span>
-                              </div>
-                            ))}
+                          <div className="mt-1 space-y-1 pl-2 border-l-2 border-green-100">
+                            {cartWithDetails.map(({ product, item, detail }) => {
+                              const hasMd = product.compareAtPrice && product.compareAtPrice > product.price
+                              const hasCart = detail && detail.discountType !== 'none'
+                              if (!hasMd && !hasCart) return null
+                              return (
+                                <div key={product.id} className="space-y-0.5">
+                                  {hasMd && (
+                                    <div className="flex justify-between text-[10px] text-muted-foreground">
+                                      <span className="truncate mr-2">{product.name} ×{item.quantity} <span className="text-green-600">(商品折扣)</span></span>
+                                      <span className="shrink-0">-NT${((product.compareAtPrice! - product.price) * item.quantity).toLocaleString()}</span>
+                                    </div>
+                                  )}
+                                  {hasCart && (
+                                    <div className="flex justify-between text-[10px] text-muted-foreground">
+                                      <span className="truncate mr-2">{product.name} ×{item.quantity} <span className="text-green-600">({detail!.discountType === 'full_amount' ? '滿額9折' : detail!.discountType === 'second_item_half' ? '第二件半價' : `分類${Number.isInteger(detail!.discountRate * 10) ? detail!.discountRate * 10 : Math.round(detail!.discountRate * 100)}折`})</span></span>
+                                      <span className="shrink-0">-NT${(detail!.originalSubtotal - detail!.finalSubtotal).toLocaleString()}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
                           </div>
                         )}
                       </div>
