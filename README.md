@@ -65,7 +65,9 @@ src/mock/handlers.ts  ← localStorage CRUD 實作
 未來擴充後端只需替換 `src/api/` 這一層，元件與業務邏輯不動。  
 見 [MOCK-API.md](./MOCK-API.md) 完整端點設計。
 
-### 折扣引擎：Strategy Pattern
+### 核心亮點：高擴展性的折扣引擎 (Strategy Pattern)
+
+電商系統的折扣規則經常變動且複雜，本專案刻意在前端實作了完整的折扣計算引擎，並採用 Strategy Pattern 以確保未來的可擴充性 (OCP 原則)。
 
 ```typescript
 interface DiscountStrategy {
@@ -76,13 +78,49 @@ interface DiscountStrategy {
 
 class FullAmountStrategy implements DiscountStrategy { ... }
 class CategoryStrategy implements DiscountStrategy { ... }
-class SecondItemHalfPriceStrategy implements DiscountStrategy { ... }  // 擴充示範
 ```
 
-`CartCalculator` 持有策略陣列，每件商品取所有適用策略中折扣最低者（best-deal selection）。  
-新增折扣規則：實作 interface → push 進陣列，**現有程式碼不動**。
+- **多規則處理機制**：支援滿額折扣、特定分類階梯折扣。當商品同時符合多種折扣時，系統會自動比對並套用「最優惠 (Best-Deal)」的策略，且不產生規則疊加衝突。
+- **無痛擴充新規則 (範例：限定商品的第二件半價)**
+  真實商業情境中，活動往往會限制「特定分類」或「特定商品」。得益於 Strategy Pattern，我們能將條件做為參數注入，**完全不需修改核心的 `CartCalculator` 引擎**：
+  
+  ```typescript
+  class SecondItemHalfPriceStrategy implements DiscountStrategy {
+    name = 'second_item_half'
+    
+    // 透過 constructor 定義活動適用範圍 (未傳遞則全站適用)
+    constructor(private targetCategory?: string, private targetProductIds?: number[]) {}
 
-### Mock API 設計
+    calculate(item: CartItemWithProduct, _context: DiscountContext): DiscountResult | null {
+      // 1. 檢查是否符合活動範圍
+      if (this.targetCategory && item.product.category !== this.targetCategory) return null;
+      if (this.targetProductIds && !this.targetProductIds.includes(item.product.id)) return null;
+
+      // 2. 數量達標判定與偶數件半價邏輯
+      if (item.item.quantity < 2) return null;
+      // ... 
+    }
+  }
+  ```
+  
+  開發者只需在系統初始化時，將新策略注入 `CartCalculator`（並可自訂限制條件，例如針對服飾類），即完美達成需求擴充，**系統現有程式碼完全不動**：
+  
+  ```typescript
+  export const calculator = new CartCalculator([
+    new FullAmountStrategy(),
+    new CategoryStrategy(),
+    
+    // 擴充範例一：限定「特定分類（服飾類）」享有第二件半價
+    new SecondItemHalfPriceStrategy('clothing'),
+    
+    // 擴充範例二：限定「特定商品（ID: 1, 2）」享有第二件半價
+    // new SecondItemHalfPriceStrategy(undefined, [1, 2])
+  ])
+  ```
+
+### Standalone Mock API Layer (純前端全功能展示)
+
+為了讓本專案能作為完全獨立的 Live Demo 運行，無需依賴後端即可體驗完整功能：
 
 ```typescript
 const delay = (ms = 400) => new Promise(res => setTimeout(res, ms + Math.random() * 200))
@@ -95,12 +133,14 @@ interface ApiResponse<T> {
 }
 ```
 
-資料存於 `localStorage`，重整頁面保留操作結果，模擬真實 API 使用情境。
+- 實作了基於 `localStorage` 的 API Handler，完整支援 CRUD 操作與資料持久化（重整頁面保留操作結果）。
+- 模擬真實 API 延遲 (300ms–600ms) 與分頁/篩選邏輯：**所有的分頁、搜尋、篩選運算皆在 Mock Server 端處理**，而非前端取得全資料後再 filter，完整模擬真實後端 API 請求情境。
+- 嚴格遵守架構分層，元件僅透過 `src/api` 發送請求，未來若需串接真實後端，前端 UI 元件只需替換 API 層，完全不需重構。
 
 ### 購物車 Drawer × Radix Popover 互動問題
 
 Vaul Drawer 使用 Radix `DismissableLayer`；Popover 若透過 Portal 渲染至 `document.body`，  
-點擊確認/取消按鈕時 Drawer 判定為「外部點擊」而關閉，按鈕 click 無效。
+點擊確認/取消按鈕時，會被 Drawer 判定為「外部點擊」而強制關閉，導致按鈕的點擊事件失效。
 
 解法：`confirm-popover.tsx` 改用 `PopoverPrimitive.Content`（無 Portal），  
 渲染保留在 Drawer DOM 樹內，`position: fixed` 定位仍正常（Drawer portal 已在 body 層無 transform 祖先）。
@@ -117,8 +157,8 @@ function AdminGuard({ children }) {
 }
 ```
 
-若省略 `_hasHydrated` 守衛，第一次 render `token = null`（hydration 尚未完成）→ 直接跳轉登入頁，  
-即使 localStorage 有效 token 也無法進入後台。
+若省略 `_hasHydrated` 守衛，在首次 render 時（此時 hydration 尚未完成）`token` 會是 `null`，系統將直接跳轉至登入頁，  
+導致即使 `localStorage` 中有有效的 token，使用者也無法順利進入後台。
 
 ---
 
@@ -148,10 +188,10 @@ pnpm e2e
 ```
 
 Unit test 涵蓋：
-- `discount.test.ts` — 5 個場景完整驗算（原始金額、折扣後金額、每件折扣明細）
-- `useCart.test.ts` — 加入、更新、移除、清空購物車
-- `cartStore.test.ts` — Zustand store 操作
-- `handlers.test.ts` — mock API CRUD + 分頁 + 批次操作
+- `discount.test.ts` — 覆蓋完整的購物車業務邏輯（包含滿額 9 折、多層級的分類階梯折扣、防疊加 Best-Deal 計算），精準驗證折扣後的每件明細與總額。
+- `useCart.test.ts` — 加入、更新、移除、清空購物車狀態管理。
+- `cartStore.test.ts` — Zustand store 操作。
+- `handlers.test.ts` — Mock API CRUD、分頁、篩選與批次操作邏輯。
 
 ---
 
