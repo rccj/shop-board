@@ -21,18 +21,18 @@ test.describe('Smoke Tests', () => {
     await page.locator('a[href*="/products/"]').first().click()
     await expect(page).toHaveURL(/#\/products\/\d+/)
     await expect(page.locator('h1')).toBeVisible()
-    await expect(page.getByRole('button', { name: /加入購物車/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /加入購物車/ }).first()).toBeVisible()
   })
 
   test('S3 — 詳情頁加入購物車，Toast 出現', async ({ page }) => {
     await page.goto('/shop-board/#/products/1')
-    await page.getByRole('button', { name: /加入購物車/ }).click()
+    await page.getByRole('button', { name: /加入購物車/ }).first().click()
     await expect(page.getByText('已加入購物車')).toBeVisible()
   })
 
   test('S4 — 點擊 Toast 開啟購物車', async ({ page }) => {
     await page.goto('/shop-board/#/products/1')
-    await page.getByRole('button', { name: /加入購物車/ }).click()
+    await page.getByRole('button', { name: /加入購物車/ }).first().click()
     const toast = page.getByText('已加入購物車')
     await expect(toast).toBeVisible()
     await toast.click()
@@ -41,7 +41,7 @@ test.describe('Smoke Tests', () => {
 
   test('S5 — 前往結帳按鈕可點擊', async ({ page }) => {
     await page.goto('/shop-board/#/products/1')
-    await page.getByRole('button', { name: /加入購物車/ }).click()
+    await page.getByRole('button', { name: /加入購物車/ }).first().click()
     await page.getByText('已加入購物車').click()
     await page.getByRole('link', { name: '前往結帳' }).click()
     await expect(page).toHaveURL(/#\/checkout/)
@@ -55,7 +55,7 @@ test.describe('Smoke Tests', () => {
 
   test('S7 — 重整頁面購物車仍在（localStorage 持久化）', async ({ page }) => {
     await page.goto('/shop-board/#/products/1')
-    await page.getByRole('button', { name: /加入購物車/ }).click()
+    await page.getByRole('button', { name: /加入購物車/ }).first().click()
     // wait for cart count badge
     await expect(page.locator('span.absolute').filter({ hasText: '1' })).toBeVisible()
     await page.reload()

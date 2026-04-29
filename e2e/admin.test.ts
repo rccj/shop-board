@@ -105,7 +105,7 @@ test.describe('後台 — 批次操作', () => {
     await page.getByRole('row').nth(1).getByRole('checkbox').click()
     await expect(page.getByText(/已選/)).toBeVisible()
     await page.getByTestId('batch-activate').click()
-    await page.waitForTimeout(300)
+    await page.getByRole('button', { name: '確認上架' }).click()
     await expect(page.getByRole('table')).toBeVisible()
   })
 
@@ -113,7 +113,7 @@ test.describe('後台 — 批次操作', () => {
     await page.getByRole('row').nth(1).getByRole('checkbox').click()
     await expect(page.getByText(/已選/)).toBeVisible()
     await page.getByTestId('batch-deactivate').click()
-    await page.waitForTimeout(300)
+    await page.getByRole('button', { name: '確認下架' }).click()
     await expect(page.getByRole('table')).toBeVisible()
   })
 

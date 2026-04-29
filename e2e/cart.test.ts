@@ -4,7 +4,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/shop-board/#/')
   await page.evaluate(() => localStorage.clear())
   await page.goto('/shop-board/#/products/1')
-  await page.getByRole('button', { name: /加入購物車/ }).click()
+  await page.getByRole('button', { name: /加入購物車/ }).first().click()
   await page.getByText('已加入購物車').click()
   await expect(page.getByRole('heading', { name: /購物車/ })).toBeVisible()
 })
