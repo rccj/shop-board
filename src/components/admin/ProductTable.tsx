@@ -59,8 +59,8 @@ export function ProductTable({
   onToggleStatus,
   onReset,
 }: Props) {
-  const allSelected = products.length > 0 && selectedIds.length === products.length
-  const someSelected = selectedIds.length > 0 && selectedIds.length < products.length
+  const allSelected = products.length > 0 && products.every(p => selectedIds.includes(p.id))
+  const someSelected = products.some(p => selectedIds.includes(p.id)) && !allSelected
 
   if (isLoading) {
     return (
