@@ -72,7 +72,7 @@ class CategoryStrategy implements DiscountStrategy {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/* SecondItemHalfPriceStrategy — disabled, re-enable when needed
 class SecondItemHalfPriceStrategy implements DiscountStrategy {
   name = 'second_item_half'
   calculate(item: CartItemWithProduct, _context: DiscountContext): DiscountResult | null {
@@ -81,11 +81,11 @@ class SecondItemHalfPriceStrategy implements DiscountStrategy {
     const price = item.product.price
     const pairs = Math.floor(qty / 2)
     const remainder = qty % 2
-    // Each pair: full price + half price = 1.5× unit price
     const finalSubtotal = round(dec(price).mul(pairs * 1.5 + remainder))
     return { rate: 0.5, finalSubtotal }
   }
 }
+*/
 
 class CartCalculator {
   constructor(private strategies: DiscountStrategy[]) { }

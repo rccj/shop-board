@@ -155,12 +155,6 @@ export default function Checkout() {
             const THRESHOLD = 10000
             const pct = Math.min(((result?.originalTotal ?? 0) / THRESHOLD) * 100, 100)
             const reached = (result?.originalTotal ?? 0) >= THRESHOLD
-            const productMarkdownItems = cartWithDetails.filter(
-              ({ product }) => product.compareAtPrice && product.compareAtPrice > product.price
-            )
-            const cartDiscountItems = cartWithDetails.filter(
-              ({ detail }) => detail && detail.discountType !== 'none'
-            )
             return (
               <div>
                 <div className="sticky top-20 rounded-lg border p-4 space-y-3">

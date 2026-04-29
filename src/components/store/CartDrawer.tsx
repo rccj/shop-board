@@ -206,12 +206,6 @@ export function CartDrawer() {
 
               {result && (() => {
                 const totalDisplaySaved = markedTotal - result.finalTotal
-                const productMarkdownItems = cartWithDetails.filter(
-                  ({ product }) => product.compareAtPrice && product.compareAtPrice > product.price
-                )
-                const cartDiscountItems = cartWithDetails.filter(
-                  ({ detail }) => detail && detail.discountType !== 'none'
-                )
                 return (
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between text-muted-foreground">
