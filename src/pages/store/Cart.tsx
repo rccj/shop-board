@@ -79,7 +79,7 @@ export default function Cart() {
                       <div className="mt-0.5 flex items-center gap-1">
                         <Tag className="h-3 w-3 text-green-600" />
                         <span className="text-xs text-green-600">
-                          {detail.discountType === 'full_amount' ? '滿額9折' : `分類${Math.round(detail.discountRate * 100)}折`}
+                          {detail.discountType === 'full_amount' ? '滿額9折' : `分類${Number.isInteger(detail.discountRate * 10) ? detail.discountRate * 10 : Math.round(detail.discountRate * 100)}折`}
                         </span>
                       </div>
                     )}
