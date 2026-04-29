@@ -264,14 +264,14 @@ export default function Checkout() {
                               return (
                                 <div key={product.id} className="space-y-0.5">
                                   {hasMd && (
-                                    <div className="flex justify-between text-[10px] text-blue-600">
-                                      <span className="truncate mr-2">{product.name} ×{item.quantity} <span className="opacity-75">(商品折扣)</span></span>
+                                    <div className="flex justify-between text-[10px] text-muted-foreground">
+                                      <span className="truncate mr-2">{product.name} ×{item.quantity} <span className="text-blue-600">(商品折扣)</span></span>
                                       <span className="shrink-0">-NT${((product.compareAtPrice! - product.price) * item.quantity).toLocaleString()}</span>
                                     </div>
                                   )}
                                   {hasCart && (
-                                    <div className="flex justify-between text-[10px] text-green-600">
-                                      <span className="truncate mr-2">{product.name} ×{item.quantity} <span className="opacity-75">({detail!.discountType === 'full_amount' ? '滿額9折' : detail!.discountType === 'second_item_half' ? '第二件半價' : `分類${Number.isInteger(detail!.discountRate * 10) ? detail!.discountRate * 10 : Math.round(detail!.discountRate * 100)}折`})</span></span>
+                                    <div className="flex justify-between text-[10px] text-muted-foreground">
+                                      <span className="truncate mr-2">{product.name} ×{item.quantity} <span className="text-green-600">({detail!.discountType === 'full_amount' ? '滿額9折' : detail!.discountType === 'second_item_half' ? '第二件半價' : `分類${Number.isInteger(detail!.discountRate * 10) ? detail!.discountRate * 10 : Math.round(detail!.discountRate * 100)}折`})</span></span>
                                       <span className="shrink-0">-NT${(detail!.originalSubtotal - detail!.finalSubtotal).toLocaleString()}</span>
                                     </div>
                                   )}
