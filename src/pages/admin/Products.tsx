@@ -49,7 +49,7 @@ export default function AdminProducts() {
     handleUpdate, handleCreate, handleBatchCreate, handleDelete, handleBatch,
   } = useProducts()
 
-  const { selectedIds, selectOne, deselectOne, selectAll, deselectMany, clearSelection } = useProductStore()
+  const { selectedIds, selectOne, deselectOne, selectAll, clearSelection } = useProductStore()
 
   const [editTarget, setEditTarget] = useState<Product | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null)
@@ -66,7 +66,7 @@ export default function AdminProducts() {
   }
 
   const handleSelectAll = (checked: boolean) => {
-    checked ? selectAll(products.map(p => p.id)) : deselectMany(products.map(p => p.id))
+    checked ? selectAll(products.map(p => p.id)) : clearSelection()
   }
 
   const handleConfirmDelete = async () => {
