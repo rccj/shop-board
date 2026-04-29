@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { Plus, Upload } from 'lucide-react'
 import { useProducts } from '@/hooks/useProducts'
@@ -60,6 +60,11 @@ export default function AdminProducts() {
   const [bulkImportOpen, setBulkImportOpen] = useState(false)
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
+
+  // Gmail-style: clear selection when page or any filter changes
+  useEffect(() => {
+    clearSelection()
+  }, [page, pageSize, search, categoryId, status, stockStatus, priceMin, priceMax, sortBy, sortOrder])
 
   const handleSelectOne = (id: number, checked: boolean) => {
     checked ? selectOne(id) : deselectOne(id)
