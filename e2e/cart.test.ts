@@ -32,13 +32,13 @@ test.describe('購物車 Drawer', () => {
 
   test('確認移除後商品消失', async ({ page }) => {
     await page.getByTestId('cart-trash').first().click()
-    await page.getByRole('button', { name: '確定' }).click()
+    await page.getByRole('button', { name: '確定' }).first().click()
     await expect(page.getByText('購物車是空的')).toBeVisible()
   })
 
   test('取消移除後商品仍在', async ({ page }) => {
     await page.getByTestId('cart-trash').first().click()
-    await page.getByRole('button', { name: '取消' }).click()
+    await page.getByRole('button', { name: '取消' }).first().click()
     await expect(page.getByTestId('cart-trash').first()).toBeVisible()
   })
 

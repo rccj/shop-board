@@ -2,13 +2,12 @@ import { test, expect } from '@playwright/test'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/shop-board/#/')
-  await page.evaluate(() => {
-    localStorage.clear()
-    // Inject mock admin token so AdminGuard passes
-    localStorage.setItem('admin-auth', JSON.stringify({ state: { token: 'e2e-test-token' }, version: 0 }))
-  })
-  await page.goto('/shop-board/#/admin/products')
-  await expect(page.getByRole('table')).toBeVisible()
+  await page.evaluate(() => localStorage.clear())
+  await page.goto('/shop-board/#/admin/login')
+  await page.getByLabel('帳號').fill('admin')
+  await page.getByLabel('密碼').fill('admin123')
+  await page.getByRole('button', { name: '登入' }).click()
+  await expect(page.getByRole('table')).toBeVisible({ timeout: 5000 })
 })
 
 test.describe('後台商品列表', () => {

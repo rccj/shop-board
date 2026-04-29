@@ -20,7 +20,9 @@ const NAV_ITEMS = [
 
 function AdminGuard({ children }: { children: React.ReactNode }) {
   const token = useAuthStore(s => s.token)
+  const hydrated = useAuthStore(s => s._hasHydrated)
   const location = useLocation()
+  if (!hydrated) return null   // wait for localStorage rehydration before deciding
   if (!token) {
     return <Navigate to="/admin/login" state={{ from: location.pathname }} replace />
   }

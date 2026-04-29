@@ -48,8 +48,11 @@ test.describe('Smoke Tests', () => {
   })
 
   test('S6 — 後台商品列表載入', async ({ page }) => {
-    await page.goto('/shop-board/#/admin/products')
-    await expect(page.getByRole('table')).toBeVisible()
+    await page.goto('/shop-board/#/admin/login')
+    await page.getByLabel('帳號').fill('admin')
+    await page.getByLabel('密碼').fill('admin123')
+    await page.getByRole('button', { name: '登入' }).click()
+    await expect(page.getByRole('table')).toBeVisible({ timeout: 5000 })
     await expect(page.getByRole('row').nth(1)).toBeVisible()
   })
 

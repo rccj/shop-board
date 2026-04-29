@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import * as PopoverPrimitive from '@radix-ui/react-popover'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 interface Props {
@@ -21,9 +22,22 @@ export function ConfirmPopover({
 }: Props) {
   const [open, setOpen] = useState(false)
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
-      <PopoverContent className="w-auto p-3" side={side} align="center">
+    <PopoverPrimitive.Root open={open} onOpenChange={setOpen}>
+      <PopoverPrimitive.Trigger asChild>{trigger}</PopoverPrimitive.Trigger>
+      {/* No Portal — renders inside Drawer DOM tree to avoid DismissableLayer conflict */}
+      <PopoverPrimitive.Content
+        side={side}
+        align="center"
+        sideOffset={4}
+        className={cn(
+          'z-50 w-auto rounded-md border bg-popover p-3 text-popover-foreground shadow-md outline-none',
+          'data-[state=open]:animate-in data-[state=closed]:animate-out',
+          'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+          'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+          'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
+          'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+        )}
+      >
         <p className="mb-3 text-sm font-medium">{message}</p>
         <div className="flex justify-end gap-2">
           <Button size="sm" variant="outline" className="h-7 px-3 text-xs" onClick={() => setOpen(false)}>
@@ -38,7 +52,7 @@ export function ConfirmPopover({
             {confirmLabel}
           </Button>
         </div>
-      </PopoverContent>
-    </Popover>
+      </PopoverPrimitive.Content>
+    </PopoverPrimitive.Root>
   )
 }

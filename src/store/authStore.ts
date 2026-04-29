@@ -3,17 +3,26 @@ import { persist } from 'zustand/middleware'
 
 interface AuthState {
   token: string | null
+  _hasHydrated: boolean
   setToken: (token: string) => void
   logout: () => void
+  setHasHydrated: (v: boolean) => void
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       token: null,
+      _hasHydrated: false,
       setToken: (token) => set({ token }),
       logout: () => set({ token: null }),
+      setHasHydrated: (v) => set({ _hasHydrated: v }),
     }),
-    { name: 'admin-auth' }
+    {
+      name: 'admin-auth',
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true)
+      },
+    }
   )
 )
