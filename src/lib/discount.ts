@@ -5,6 +5,7 @@ import {
   DiscountDetail,
   CalculationResult,
 } from '@/types/discount'
+import { FULL_AMOUNT_THRESHOLD, FULL_AMOUNT_RATE, CATEGORY_DISCOUNT } from '@/constants/discount'
 
 interface CartItemWithProduct {
   item: CartItem
@@ -41,33 +42,28 @@ const round = (d: Decimal) => d.toDecimalPlaces(0, Decimal.ROUND_HALF_UP).toNumb
 class FullAmountStrategy implements DiscountStrategy {
   name = 'full_amount'
   calculate(item: CartItemWithProduct, context: DiscountContext): DiscountResult | null {
-    if (context.originalTotal < 10000) return null
+    if (context.originalTotal < FULL_AMOUNT_THRESHOLD) return null
     const originalSubtotal = item.product.price * item.item.quantity
     return {
-      rate: 0.9,
-      finalSubtotal: round(dec(originalSubtotal).mul(0.9)),
+      rate: FULL_AMOUNT_RATE,
+      finalSubtotal: round(dec(originalSubtotal).mul(FULL_AMOUNT_RATE)),
     }
   }
 }
 
 class CategoryStrategy implements DiscountStrategy {
   name = 'category'
-  private thresholds: Record<string, { min: number; rate: number }> = {
-    electronics: { min: 2, rate: 0.85 },
-    clothing: { min: 3, rate: 0.8 },
-    books: { min: 5, rate: 0.7 },
-  }
 
   calculate(item: CartItemWithProduct, context: DiscountContext): DiscountResult | null {
     const cat = item.product.category
-    const threshold = this.thresholds[cat]
-    if (!threshold) return null
+    const rule = CATEGORY_DISCOUNT[cat as keyof typeof CATEGORY_DISCOUNT]
+    if (!rule) return null
     const totalQty = context.categoryTotals.get(cat) ?? 0
-    if (totalQty < threshold.min) return null
+    if (totalQty < rule.minQty) return null
     const originalSubtotal = item.product.price * item.item.quantity
     return {
-      rate: threshold.rate,
-      finalSubtotal: round(dec(originalSubtotal).mul(threshold.rate)),
+      rate: rule.rate,
+      finalSubtotal: round(dec(originalSubtotal).mul(rule.rate)),
     }
   }
 }

@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useShallow } from 'zustand/react/shallow'
 import { ArrowLeft, CheckCircle2, CreditCard, MapPin, User, Tag, ChevronDown } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useCart } from '@/hooks/useCart'
 import { useCartStore } from '@/store/cartStore'
+import { FULL_AMOUNT_THRESHOLD } from '@/constants/discount'
 import { getCartProducts } from '@/api/cart'
 import { Product } from '@/types/product'
 import { Button } from '@/components/ui/button'
@@ -14,7 +16,9 @@ import { Footer } from '@/components/store/Footer'
 
 export default function Checkout() {
   const { result, calculate } = useCart()
-  const { items, clearCart } = useCartStore()
+  const { items, clearCart } = useCartStore(
+    useShallow(s => ({ items: s.items, clearCart: s.clearCart }))
+  )
   const navigate = useNavigate()
   const [submitted, setSubmitted] = useState(false)
   const [countdown, setCountdown] = useState(3)
@@ -152,9 +156,8 @@ export default function Checkout() {
               (sum, { product, item }) => sum + (product.compareAtPrice ?? product.price) * item.quantity, 0
             )
             const totalDisplaySaved = result ? markedTotal - result.finalTotal : 0
-            const THRESHOLD = 10000
-            const pct = Math.min(((result?.originalTotal ?? 0) / THRESHOLD) * 100, 100)
-            const reached = (result?.originalTotal ?? 0) >= THRESHOLD
+            const pct = Math.min(((result?.originalTotal ?? 0) / FULL_AMOUNT_THRESHOLD) * 100, 100)
+            const reached = (result?.originalTotal ?? 0) >= FULL_AMOUNT_THRESHOLD
             return (
               <div>
                 <div className="sticky top-20 rounded-lg border p-4 space-y-3">
@@ -214,7 +217,7 @@ export default function Checkout() {
                           <TooltipTrigger asChild>
                             <span className="flex items-center gap-1 font-medium underline cursor-pointer">
                               <Tag className="h-3 w-3 text-green-600" />
-                              {reached ? '已達滿額折扣！全單9折' : `再 NT$${(THRESHOLD - result.originalTotal).toLocaleString()} 享全單9折`}
+                              {reached ? '已達滿額折扣！全單9折' : `再 NT$${(FULL_AMOUNT_THRESHOLD - result.originalTotal).toLocaleString()} 享全單9折`}
                             </span>
                           </TooltipTrigger>
                           <TooltipContent side="top">優惠不疊加，每件商品自動套用最優折扣</TooltipContent>

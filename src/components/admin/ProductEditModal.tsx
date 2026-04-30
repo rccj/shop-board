@@ -87,6 +87,12 @@ export function ProductEditModal({ product, open, onOpenChange, categories, onSa
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    if (!allowed.includes(file.type)) {
+      toast.error('僅支援 JPG、PNG、GIF、WebP 格式')
+      e.target.value = ''
+      return
+    }
     const reader = new FileReader()
     reader.onload = () => setImageValue(reader.result as string)
     reader.readAsDataURL(file)

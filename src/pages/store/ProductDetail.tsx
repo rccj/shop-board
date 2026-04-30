@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ShoppingCart, Tag, AlertTriangle, Minus, Plus, Truck, ShieldCheck, RotateCcw, Headphones } from 'lucide-react'
 import { CartDrawer } from '@/components/store/CartDrawer'
@@ -17,7 +18,9 @@ import { CATEGORY_DISCOUNT_HINTS } from '@/lib/discountHints'
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { addItem, setCartOpen } = useCartStore()
+  const { addItem, setCartOpen } = useCartStore(
+    useShallow(s => ({ addItem: s.addItem, setCartOpen: s.setCartOpen }))
+  )
   const [product, setProduct] = useState<Product | null>(null)
   const [related, setRelated] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)

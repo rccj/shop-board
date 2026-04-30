@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { Link } from 'react-router-dom'
 import { ShoppingCart, Minus, Plus, Trash2, Tag, ChevronDown } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
 import { useCartStore } from '@/store/cartStore'
+import { FULL_AMOUNT_THRESHOLD } from '@/constants/discount'
 import { getCartProducts } from '@/api/cart'
 import { Product } from '@/types/product'
 import {
@@ -24,7 +26,9 @@ import { ConfirmPopover } from '@/components/ui/confirm-popover'
 
 export function CartDrawer() {
   const { items, result, addItem, removeItem, updateQuantity, clearCart, calculate } = useCart()
-  const { isCartOpen, setCartOpen } = useCartStore()
+  const { isCartOpen, setCartOpen } = useCartStore(
+    useShallow(s => ({ isCartOpen: s.isCartOpen, setCartOpen: s.setCartOpen }))
+  )
   const triggerRef = useRef<HTMLButtonElement>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [discountExpanded, setDiscountExpanded] = useState(false)
@@ -175,9 +179,8 @@ export function CartDrawer() {
 
             <div className="border-t p-4 space-y-3">
               {result && (() => {
-                const THRESHOLD = 10000
-                const pct = Math.min((result.originalTotal / THRESHOLD) * 100, 100)
-                const reached = result.originalTotal >= THRESHOLD
+                  const pct = Math.min((result.originalTotal / FULL_AMOUNT_THRESHOLD) * 100, 100)
+                const reached = result.originalTotal >= FULL_AMOUNT_THRESHOLD
                 return (
                   <div className="space-y-1.5">
                     <div className="flex justify-between text-xs">
@@ -185,7 +188,7 @@ export function CartDrawer() {
                         <TooltipTrigger asChild>
                           <span className="flex items-center gap-1 font-medium underline cursor-pointer">
                             <Tag className="h-3 w-3 text-green-600" />
-                            {reached ? '已達滿額折扣！全單9折' : `再 NT$${(THRESHOLD - result.originalTotal).toLocaleString()} 享全單9折`}
+                            {reached ? '已達滿額折扣！全單9折' : `再 NT$${(FULL_AMOUNT_THRESHOLD - result.originalTotal).toLocaleString()} 享全單9折`}
                           </span>
                         </TooltipTrigger>
                         <TooltipContent side="top">

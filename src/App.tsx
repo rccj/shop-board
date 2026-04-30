@@ -141,7 +141,7 @@ export default function App() {
         <Route path="/products/:id" element={<ErrorBoundary><ProductDetail /></ErrorBoundary>} />
         <Route path="/cart" element={<ErrorBoundary><Cart /></ErrorBoundary>} />
         <Route path="/checkout" element={<ErrorBoundary><Checkout /></ErrorBoundary>} />
-        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/login" element={<ErrorBoundary><AdminLogin /></ErrorBoundary>} />
         <Route
           path="/admin"
           element={
@@ -153,11 +153,13 @@ export default function App() {
         <Route
           path="/admin/products"
           element={
-            <AdminGuard>
-              <AdminLayout>
-                <AdminProducts />
-              </AdminLayout>
-            </AdminGuard>
+            <ErrorBoundary>
+              <AdminGuard>
+                <AdminLayout>
+                  <AdminProducts />
+                </AdminLayout>
+              </AdminGuard>
+            </ErrorBoundary>
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />

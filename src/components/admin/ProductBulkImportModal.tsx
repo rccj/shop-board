@@ -80,6 +80,11 @@ function parseCSV(text: string, categories: Category[]): ParsedRow[] {
 
     const category = categories.find(c => c.id === categoryId)!
     const seed = name.toLowerCase().replace(/\s+/g, '')
+    const imageUrl = raw.imageUrl
+    if (imageUrl && !imageUrl.startsWith('https://')) {
+      errors.push('圖片網址必須以 https:// 開頭')
+    }
+    if (errors.length > 0) return { index: i + 1, raw, errors }
     return {
       index: i + 1,
       raw,
@@ -90,7 +95,7 @@ function parseCSV(text: string, categories: Category[]): ParsedRow[] {
         price,
         compareAtPrice,
         category,
-        images: [raw.imageUrl || `https://picsum.photos/seed/${seed}/400/400`],
+        images: [imageUrl || `https://picsum.photos/seed/${seed}/400/400`],
         stock,
         lowStockThreshold,
         sales: 0,

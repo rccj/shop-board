@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { useImeInput } from '@/hooks/useImeInput'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Search, ArrowRight, Tag } from 'lucide-react'
@@ -54,7 +55,9 @@ export default function ProductList() {
   const [activeCatsLoaded, setActiveCatsLoaded] = useState(false)
 
   const productListRef = useRef<HTMLElement>(null)
-  const { addItem, setCartOpen } = useCartStore()
+  const { addItem, setCartOpen } = useCartStore(
+    useShallow(s => ({ addItem: s.addItem, setCartOpen: s.setCartOpen }))
+  )
 
   // sync URL params helper
   const updateParams = useCallback((updates: Record<string, string>) => {
@@ -117,7 +120,7 @@ export default function ProductList() {
 
   // F2: load all active products once to determine which categories have stock
   useEffect(() => {
-    getProducts({ page: 1, pageSize: 500 as 50, status: 'active' })
+    getProducts({ page: 1, pageSize: 50, status: 'active' })
       .then(res => setActiveCategoryIds(new Set(res.data.map(p => p.category.id))))
       .catch(() => { })
       .finally(() => setActiveCatsLoaded(true))
