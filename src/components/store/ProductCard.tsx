@@ -1,10 +1,8 @@
-import { useLayoutEffect, useRef, useState } from 'react'
 import { ShoppingCart, Tag } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Product } from '@/types/product'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { CATEGORY_DISCOUNT_HINTS } from '@/lib/discountHints'
 import { getCategoryColor } from '@/lib/categoryColors'
 
@@ -19,31 +17,6 @@ export function ProductCard({ product, onAddToCart }: Props) {
   const discountPct = product.compareAtPrice
     ? Math.round((1 - product.price / product.compareAtPrice) * 100)
     : null
-
-  const priceRef = useRef<HTMLDivElement>(null)
-  const [priceTruncated, setPriceTruncated] = useState(false)
-  const comparePriceRef = useRef<HTMLDivElement>(null)
-  const [comparePriceTruncated, setComparePriceTruncated] = useState(false)
-
-  useLayoutEffect(() => {
-    const el = priceRef.current
-    if (!el) return
-    const observer = new ResizeObserver(() => {
-      setPriceTruncated(el.scrollWidth > el.offsetWidth)
-    })
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [product.price])
-
-  useLayoutEffect(() => {
-    const el = comparePriceRef.current
-    if (!el) return
-    const observer = new ResizeObserver(() => {
-      setComparePriceTruncated(el.scrollWidth > el.offsetWidth)
-    })
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [product.compareAtPrice])
 
   return (
     <Link
@@ -77,22 +50,12 @@ export function ProductCard({ product, onAddToCart }: Props) {
         </p>
         <div className="mt-auto flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <Tooltip open={priceTruncated ? undefined : false}>
-              <TooltipTrigger asChild>
-                <div ref={priceRef} className="truncate text-base font-bold leading-tight">NT${product.price.toLocaleString()}</div>
-              </TooltipTrigger>
-              <TooltipContent>NT${product.price.toLocaleString()}</TooltipContent>
-            </Tooltip>
+            <div className="truncate text-base font-bold leading-tight">NT${product.price.toLocaleString()}</div>
             <div className="min-h-[1rem]">
               {product.compareAtPrice && (
-                <Tooltip open={comparePriceTruncated ? undefined : false}>
-                  <TooltipTrigger asChild>
-                    <div ref={comparePriceRef} className="truncate text-xs text-muted-foreground line-through">
-                      NT${product.compareAtPrice.toLocaleString()}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>NT${product.compareAtPrice.toLocaleString()}</TooltipContent>
-                </Tooltip>
+                <div className="truncate text-xs text-muted-foreground line-through">
+                  NT${product.compareAtPrice.toLocaleString()}
+                </div>
               )}
             </div>
           </div>

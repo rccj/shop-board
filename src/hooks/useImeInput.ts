@@ -6,8 +6,8 @@ import { useState } from 'react'
  * so onChange always updates the input visually, but onCommit only
  * fires after composition ends (i.e. after character selection).
  */
-export function useImeInput(onCommit: (value: string) => void) {
-  const [inputValue, setInputValue] = useState('')
+export function useImeInput(onCommit: (value: string) => void, initialValue = '') {
+  const [inputValue, setInputValue] = useState(initialValue)
 
   return {
     value: inputValue,

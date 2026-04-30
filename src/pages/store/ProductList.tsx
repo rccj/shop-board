@@ -36,7 +36,7 @@ export default function ProductList() {
   // search: local state for IME + debounce; synced to URL after debounce
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '')
   const [debouncedSearch] = useDebounce(search.trim(), 300)
-  const imeSearch = useImeInput(setSearch)
+  const imeSearch = useImeInput(setSearch, search)
 
   // category + sort: directly from URL (no debounce needed)
   const selectedCategory = (() => {
@@ -75,12 +75,6 @@ export default function ProductList() {
     productListRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [])
 
-  // sync IME display value on first mount (in case URL has ?q=...)
-  useEffect(() => {
-    imeSearch.setValue(search)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   // push debounced search to URL
   useEffect(() => {
     updateParams({ q: debouncedSearch })
@@ -114,7 +108,7 @@ export default function ProductList() {
   useEffect(() => {
     getProducts({ page: 1, pageSize: 10, sortBy: 'sales', sortOrder: 'desc', status: 'active' })
       .then(res => setHotProducts(res.data.slice(0, 6)))
-      .catch(() => { })
+      .catch((err) => console.error('Failed to load hot products', err))
       .finally(() => setHotLoading(false))
   }, [])
 
@@ -122,7 +116,7 @@ export default function ProductList() {
   useEffect(() => {
     getProducts({ page: 1, pageSize: 50, status: 'active' })
       .then(res => setActiveCategoryIds(new Set(res.data.map(p => p.category.id))))
-      .catch(() => { })
+      .catch((err) => console.error('Failed to load active categories', err))
       .finally(() => setActiveCatsLoaded(true))
   }, [])
 
