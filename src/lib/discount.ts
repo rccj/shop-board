@@ -71,7 +71,9 @@ class CategoryStrategy implements DiscountStrategy {
 /* SecondItemHalfPriceStrategy — disabled, re-enable when needed
 class SecondItemHalfPriceStrategy implements DiscountStrategy {
   name = 'second_item_half'
+  constructor(private targetCategories?: string[]) {}
   calculate(item: CartItemWithProduct, _context: DiscountContext): DiscountResult | null {
+    if (this.targetCategories && !this.targetCategories.includes(item.product.category)) return null
     const qty = item.item.quantity
     if (qty < 2) return null
     const price = item.product.price
@@ -82,6 +84,25 @@ class SecondItemHalfPriceStrategy implements DiscountStrategy {
   }
 }
 */
+
+// class TieredFullAmountStrategy implements DiscountStrategy {
+//   name = 'tiered_full_amount'
+
+//   constructor(private tiers: { threshold: number; rate: number }[]) {}
+
+//   calculate(item, context) {
+//     // 找到所有符合門檻的 tier，rate 連乘
+//     const applicableTiers = this.tiers.filter(t => context.originalTotal >= t.threshold)
+//     if (applicableTiers.length === 0) return null
+
+//     const combinedRate = applicableTiers.reduce((rate, t) => rate * t.rate, 1)
+//     const originalSubtotal = item.product.price * item.item.quantity
+//     return {
+//       rate: combinedRate,
+//       finalSubtotal: round(dec(originalSubtotal).mul(combinedRate)),
+//     }
+//   }
+// }
 
 class CartCalculator {
   constructor(private strategies: DiscountStrategy[]) { }
@@ -164,7 +185,12 @@ class CartCalculator {
 export const calculator = new CartCalculator([
   new FullAmountStrategy(),
   new CategoryStrategy(),
-  // new SecondItemHalfPriceStrategy(),
+  // new SecondItemHalfPriceStrategy(['clothing', 'books']),
+
+  //   new TieredFullAmountStrategy([
+  //   { threshold: 10000, rate: 0.9 },
+  //   { threshold: 20000, rate: 0.95 },
+  // ])
 ])
 
 export const calculateCart = (

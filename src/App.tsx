@@ -134,37 +134,37 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <TooltipProvider>
-    <HashRouter>
-      <Toaster richColors position="top-center" />
-      <Routes>
-        <Route path="/" element={<ErrorBoundary><ProductList /></ErrorBoundary>} />
-        <Route path="/products/:id" element={<ErrorBoundary><ProductDetail /></ErrorBoundary>} />
-        <Route path="/cart" element={<ErrorBoundary><Cart /></ErrorBoundary>} />
-        <Route path="/checkout" element={<ErrorBoundary><Checkout /></ErrorBoundary>} />
-        <Route path="/admin/login" element={<ErrorBoundary><AdminLogin /></ErrorBoundary>} />
-        <Route
-          path="/admin"
-          element={
-            <AdminGuard>
-              <Navigate to="/admin/products" replace />
-            </AdminGuard>
-          }
-        />
-        <Route
-          path="/admin/products"
-          element={
-            <ErrorBoundary>
+      <HashRouter>
+        <Toaster richColors position="top-center" />
+        <Routes>
+          <Route path="/" element={<ErrorBoundary><ProductList /></ErrorBoundary>} />
+          <Route path="/products/:id" element={<ErrorBoundary><ProductDetail /></ErrorBoundary>} />
+          <Route path="/cart" element={<ErrorBoundary><Cart /></ErrorBoundary>} />
+          <Route path="/checkout" element={<ErrorBoundary><Checkout /></ErrorBoundary>} />
+          <Route path="/admin/login" element={<ErrorBoundary><AdminLogin /></ErrorBoundary>} />
+          <Route
+            path="/admin"
+            element={
               <AdminGuard>
-                <AdminLayout>
-                  <AdminProducts />
-                </AdminLayout>
+                <Navigate to="/admin/products" replace />
               </AdminGuard>
-            </ErrorBoundary>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </HashRouter>
+            }
+          />
+          <Route
+            path="/admin/products"
+            element={
+              <ErrorBoundary>
+                <AdminGuard>
+                  <AdminLayout>
+                    <AdminProducts />
+                  </AdminLayout>
+                </AdminGuard>
+              </ErrorBoundary>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </HashRouter>
     </TooltipProvider>
   )
 }
