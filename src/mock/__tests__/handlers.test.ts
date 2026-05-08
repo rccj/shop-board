@@ -45,10 +45,10 @@ const makePayload = (overrides: Partial<Omit<Product, 'id' | 'createdAt' | 'upda
 // handleGetProducts
 // ---------------------------------------------------------------------------
 describe('handleGetProducts', () => {
-  it('returns all 30 products by default', async () => {
-    const result = await run(handleGetProducts({ page: 1, pageSize: 50 }))
-    expect(result.total).toBe(30)
-    expect(result.data.length).toBe(30)
+  it('returns all 100 products by default', async () => {
+    const result = await run(handleGetProducts({ page: 1, pageSize: 100 }))
+    expect(result.total).toBe(100)
+    expect(result.data.length).toBe(100)
   })
 
   it('paginates correctly — page 2', async () => {
@@ -65,7 +65,7 @@ describe('handleGetProducts', () => {
   it('page beyond range returns empty array', async () => {
     const result = await run(handleGetProducts({ page: 99, pageSize: 50 }))
     expect(result.data.length).toBe(0)
-    expect(result.total).toBe(30)
+    expect(result.total).toBe(100)
   })
 
   it('filters by status: active', async () => {
@@ -202,7 +202,7 @@ describe('handleCreateProduct', () => {
   })
 
   it('auto-increments id beyond existing max', async () => {
-    const all = await run(handleGetProducts({ page: 1, pageSize: 50 }))
+    const all = await run(handleGetProducts({ page: 1, pageSize: 200 }))
     const maxId = Math.max(...all.data.map(p => p.id))
     const result = await run(handleCreateProduct(makePayload()))
     expect(result.data.id).toBe(maxId + 1)
