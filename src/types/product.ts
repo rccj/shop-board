@@ -21,7 +21,7 @@ export interface Product {
 
 export interface ProductQueryParams {
   page: number
-  pageSize: 10 | 20 | 50
+  pageSize: 10 | 12 | 20 | 50 | 100 | 200
   search?: string
   categoryId?: number
   priceMin?: number
