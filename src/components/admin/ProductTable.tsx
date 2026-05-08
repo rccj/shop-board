@@ -86,9 +86,8 @@ export function ProductTable({
   }
 
   return (
-    <div className="overflow-x-auto">
-    <Table>
-      <TableHeader>
+    <Table containerClassName="max-h-[calc(100vh-16rem)]">
+      <TableHeader className="sticky top-0 z-10 bg-background">
         <TableRow>
           <TableHead className="w-10">
             <Checkbox
@@ -227,6 +226,5 @@ export function ProductTable({
         })}
       </TableBody>
     </Table>
-    </div>
   )
 }

@@ -28,6 +28,8 @@ import { useDebounce } from 'use-debounce'
 
 initStorage()
 
+const PAGE_SIZE = 12
+
 type SortOption = 'default' | 'price_asc' | 'price_desc' | 'sales_desc'
 
 export default function ProductList() {
@@ -50,11 +52,12 @@ export default function ProductList() {
   const [hotLoading, setHotLoading] = useState(true)
   const [total, setTotal] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
-  // F2: category IDs that have at least 1 active product
-  const [activeCategoryIds, setActiveCategoryIds] = useState<Set<number>>(new Set())
-  const [activeCatsLoaded, setActiveCatsLoaded] = useState(false)
+  const [isFetchingMore, setIsFetchingMore] = useState(false)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
 
   const productListRef = useRef<HTMLElement>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
   const { addItem, setCartOpen } = useCartStore(
     useShallow(s => ({ addItem: s.addItem, setCartOpen: s.setCartOpen }))
   )
@@ -112,46 +115,64 @@ export default function ProductList() {
       .finally(() => setHotLoading(false))
   }, [])
 
-  // F2: load all active products once to determine which categories have stock
+  // reset list when filters change
   useEffect(() => {
-    getProducts({ page: 1, pageSize: 50, status: 'active' })
-      .then(res => setActiveCategoryIds(new Set(res.data.map(p => p.category.id))))
-      .catch((err) => console.error('Failed to load active categories', err))
-      .finally(() => setActiveCatsLoaded(true))
-  }, [])
+    setProducts([])
+    setPage(1)
+    setHasMore(true)
+  }, [debouncedSearch, selectedCategory, sort])
 
-  // main product list
+  // fetch page
   useEffect(() => {
+    let cancelled = false
+    const sortMap: Record<SortOption, { sortBy?: 'price' | 'stock' | 'sales'; sortOrder?: 'asc' | 'desc' }> = {
+      default: {},
+      price_asc: { sortBy: 'price', sortOrder: 'asc' },
+      price_desc: { sortBy: 'price', sortOrder: 'desc' },
+      sales_desc: { sortBy: 'sales', sortOrder: 'desc' },
+    }
     const load = async () => {
-      setIsLoading(true)
+      if (page === 1) setIsLoading(true)
+      else setIsFetchingMore(true)
       try {
-        const sortMap: Record<SortOption, { sortBy?: 'price' | 'stock' | 'sales'; sortOrder?: 'asc' | 'desc' }> = {
-          default: {},
-          price_asc: { sortBy: 'price', sortOrder: 'asc' },
-          price_desc: { sortBy: 'price', sortOrder: 'desc' },
-          sales_desc: { sortBy: 'sales', sortOrder: 'desc' },
-        }
         const res = await getProducts({
-          page: 1,
-          pageSize: 50,
+          page,
+          pageSize: PAGE_SIZE,
           search: debouncedSearch || undefined,
           categoryId: selectedCategory,
           status: 'active',
           ...sortMap[sort],
         })
-        setProducts(res.data)
-        setTotal(res.total ?? 0)
+        if (!cancelled) {
+          setProducts(prev => page === 1 ? res.data : [...prev, ...res.data])
+          setTotal(res.total ?? 0)
+          setHasMore(res.data.length === PAGE_SIZE && page * PAGE_SIZE < (res.total ?? 0))
+        }
       } finally {
-        setIsLoading(false)
+        if (!cancelled) {
+          if (page === 1) setIsLoading(false)
+          else setIsFetchingMore(false)
+        }
       }
     }
     void load()
-  }, [debouncedSearch, selectedCategory, sort])
+    return () => { cancelled = true }
+  }, [page, debouncedSearch, selectedCategory, sort])
 
-  // visible categories: only those with active products (hide empty)
-  const visibleCategories = activeCategoryIds.size === 0
-    ? categories // loading state: show all to avoid layout shift
-    : categories.filter(c => activeCategoryIds.has(c.id))
+  // IntersectionObserver: trigger next page when sentinel is visible
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel || !hasMore || isFetchingMore) return
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setPage(p => p + 1)
+      },
+      { rootMargin: '200px' }
+    )
+    obs.observe(sentinel)
+    return () => obs.disconnect()
+  }, [hasMore, isFetchingMore, products])
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -176,31 +197,25 @@ export default function ProductList() {
             <h2 className="mb-2 text-3xl font-bold">滿 NT$10,000 享 9 折</h2>
             <p className="mb-4 text-slate-300">不限金額，全站免運費</p>
             <div className="flex flex-wrap gap-3 text-sm">
-              {!activeCatsLoaded
-                ? Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="h-7 w-28 rounded-full bg-white/10 animate-pulse" />
-                ))
-                : [
-                  { label: '3C 買 2 件 85 折', name: '3C電子' },
-                  { label: '服飾 買 3 件 8 折', name: '服飾配件' },
-                  { label: '書籍 買 5 件 7 折', name: '書籍文具' },
-                ].flatMap(({ label, name }) => {
-                  const cat = categories.find(c => c.name === name)
-                  if (!cat || !activeCategoryIds.has(cat.id)) return []
-                  return (
-                    <button
-                      key={name}
-                      onClick={() => {
-                        updateParams({ cat: String(cat.id), sort: '' })
-                        scrollToProducts()
-                      }}
-                      className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 transition-colors hover:bg-white/20 cursor-pointer"
-                    >
-                      <Tag className="h-3 w-3" /> {label}
-                    </button>
-                  )
-                })
-              }
+              {[
+                { label: '3C 買 2 件 85 折', name: '3C電子' },
+                { label: '服飾 買 3 件 8 折', name: '服飾配件' },
+                { label: '書籍 買 5 件 7 折', name: '書籍文具' },
+              ].map(({ label, name }) => {
+                const cat = categories.find(c => c.name === name)!
+                return (
+                  <button
+                    key={name}
+                    onClick={() => {
+                      updateParams({ cat: String(cat.id), sort: '' })
+                      scrollToProducts()
+                    }}
+                    className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 transition-colors hover:bg-white/20 cursor-pointer"
+                  >
+                    <Tag className="h-3 w-3" /> {label}
+                  </button>
+                )
+              })}
             </div>
           </div>
         </section>
@@ -285,7 +300,6 @@ export default function ProductList() {
             </div>
           </div>
 
-          {/* 分類篩選 badge — 只顯示有上架商品的分類 */}
           <div className="mb-4 flex flex-wrap gap-2">
             <Badge
               variant={selectedCategory === undefined ? 'default' : 'outline'}
@@ -294,7 +308,7 @@ export default function ProductList() {
             >
               全部
             </Badge>
-            {visibleCategories.map(c => (
+            {categories.map(c => (
               <Badge
                 key={c.id}
                 variant={selectedCategory === c.id ? 'default' : 'outline'}
@@ -308,7 +322,7 @@ export default function ProductList() {
 
           {isLoading ? (
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, i) => (
+              {Array.from({ length: PAGE_SIZE }).map((_, i) => (
                 <div key={i} className="space-y-2">
                   <Skeleton className="aspect-square w-full" />
                   <Skeleton className="h-4 w-3/4" />
@@ -328,15 +342,35 @@ export default function ProductList() {
               </Button>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {products.map(p => (
-                <ProductCard
-                  key={p.id}
-                  product={p}
-                  onAddToCart={(id) => handleAddToCart(id, p.name)}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {products.map(p => (
+                  <ProductCard
+                    key={p.id}
+                    product={p}
+                    onAddToCart={(id) => handleAddToCart(id, p.name)}
+                  />
+                ))}
+              </div>
+
+              {isFetchingMore && (
+                <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="space-y-2">
+                      <Skeleton className="aspect-square w-full rounded-lg" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div ref={sentinelRef} className="h-1" />
+
+              {!hasMore && (
+                <p className="py-6 text-center text-sm text-muted-foreground">已顯示全部商品</p>
+              )}
+            </>
           )}
         </section>
       </main>
